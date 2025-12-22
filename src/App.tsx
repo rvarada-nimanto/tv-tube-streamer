@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import TVLogin from "./pages/TVLogin";
 import TVDisplay from "./pages/TVDisplay";
 import StoreSetup from "./pages/StoreSetup";
+import StoreContent from "./pages/StoreContent";
 import SponsorSetup from "./pages/SponsorSetup";
 import NotFound from "./pages/NotFound";
 
@@ -38,6 +39,7 @@ const App = () => (
             
             {/* Store Routes */}
             <Route path="/store/setup" element={<StoreSetup />} />
+            <Route path="/store/content" element={<StoreContent />} />
             
             {/* Sponsor Routes */}
             <Route path="/sponsor/setup" element={<SponsorSetup />} />
