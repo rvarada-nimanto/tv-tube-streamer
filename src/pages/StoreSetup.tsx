@@ -82,7 +82,7 @@ export default function StoreSetup() {
       closing_time: formData.closingTime,
       ad_categories: formData.adCategories as ("food" | "retail" | "health" | "beauty" | "automotive" | "entertainment" | "technology" | "real_estate" | "services" | "other")[],
       is_active: true,
-    } as any);
+    });
 
     setIsLoading(false);
 
