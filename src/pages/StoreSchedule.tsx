@@ -104,8 +104,8 @@ const StoreSchedule = () => {
     // Ignore responses for a date the user has already moved away from.
     let cancelled = false;
 
-    const fetchScheduledAds = async () => {
-      setLoadingAds(true);
+    const fetchScheduledAds = async (showSpinner = true) => {
+      if (showSpinner) setLoadingAds(true);
       const dateStr = format(selectedDate, "yyyy-MM-dd");
       const { data, error } = await supabase
         .from("ad_schedule")
@@ -143,8 +143,19 @@ const StoreSchedule = () => {
 
     fetchScheduledAds();
 
+    // Show bookings and plays as they happen
+    const channel = supabase
+      .channel(`schedule-page-${store.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "ad_schedule", filter: `store_id=eq.${store.id}` },
+        () => fetchScheduledAds(false)
+      )
+      .subscribe();
+
     return () => {
       cancelled = true;
+      supabase.removeChannel(channel);
     };
   }, [store, selectedDate, toast]);
 
