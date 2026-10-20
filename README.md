@@ -51,6 +51,15 @@ The Supabase connection comes from `.env`:
 
 The database schema lives in `supabase/migrations/`.
 
+## Database
+
+The schema, row-level security policies and storage bucket are defined in `supabase/migrations/`, applied in file-name order.
+
+- **To change the schema**, add a new migration file (`YYYYMMDDHHMMSS_what_it_does.sql`). Never edit one that has already run.
+- **Applying them:** changes made through Lovable are applied for you. A migration added straight to this repo may need to be run once in the Supabase SQL editor.
+- **Store bank details** are not readable through the API. Select named columns from `stores`, never `*`.
+- **Plays are recorded** with `supabase.rpc("mark_ad_played", { _schedule_id })`. The TV can't update `ad_schedule` directly.
+
 ## Scripts
 
 | Command | What it does |
