@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { extractYouTubeId, youtubeEmbedUrl } from "@/lib/youtube";
+import { nextDisplayOrder } from "@/lib/content";
 import { checkUpload, UPLOAD_RULES, type UploadKind } from "@/lib/uploads";
 import { 
   ArrowLeft, 
@@ -158,10 +159,6 @@ export default function StoreContent() {
     if (file) acceptFile(file);
   };
 
-  // One past the highest position; the count can collide after a delete
-  const nextDisplayOrder = () =>
-    contentItems.reduce((max, item) => Math.max(max, item.display_order ?? -1), -1) + 1;
-
   const handleUpload = async () => {
     if (!store || !user) return;
 
@@ -194,7 +191,7 @@ export default function StoreContent() {
           title: title.trim() || "YouTube Video",
           content_type: "youtube",
           content_url: youtubeEmbedUrl(videoId),
-          display_order: nextDisplayOrder(),
+          display_order: nextDisplayOrder(contentItems),
         });
 
       if (error) {
@@ -255,7 +252,7 @@ export default function StoreContent() {
         title: title.trim() || selectedFile.name,
         content_type: contentType,
         content_url: urlData.publicUrl,
-        display_order: nextDisplayOrder(),
+        display_order: nextDisplayOrder(contentItems),
       });
 
     if (insertError) {
