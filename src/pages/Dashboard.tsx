@@ -139,6 +139,14 @@ export default function Dashboard() {
               <Tv className="w-5 h-5 text-primary-foreground" />
             </div>
             <span className="text-xl font-bold font-display">AdStation</span>
+            {(store || sponsor) && (
+              <span className="hidden sm:inline text-sm text-muted-foreground">
+                {store?.store_name || sponsor?.company_name}
+              </span>
+            )}
+            {store && !store.is_active && (
+              <span className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground">Inactive</span>
+            )}
           </div>
 
           <div className="flex items-center gap-4">
