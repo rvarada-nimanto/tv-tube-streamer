@@ -30,7 +30,9 @@ export default function TVLogin() {
     if (error) {
       toast({
         title: "Login Failed",
-        description: "Invalid credentials. Please try again.",
+        description: error.message === "Invalid login credentials"
+          ? "Invalid credentials. Please try again."
+          : error.message,
         variant: "destructive",
       });
     }
