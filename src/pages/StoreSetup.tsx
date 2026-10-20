@@ -62,6 +62,19 @@ export default function StoreSetup() {
     }
   }, [user, authLoading, navigate]);
 
+  // Each account has one store; setting it up again can only fail
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("stores")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) navigate("/dashboard", { replace: true });
+      });
+  }, [user, navigate]);
+
   const handleCategoryToggle = (category: string) => {
     setFormData((prev) => ({
       ...prev,
