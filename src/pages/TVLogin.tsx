@@ -24,7 +24,7 @@ export default function TVLogin() {
     e.preventDefault();
     setIsLoading(true);
     
-    const { error } = await signIn(email, password);
+    const { error } = await signIn(email.trim(), password);
     setIsLoading(false);
 
     if (error) {
