@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDocumentTitle } from "@/hooks/use-document-title";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -42,6 +42,7 @@ interface TimeSlot {
 
 const StoreSchedule = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   useDocumentTitle("Ad schedule");
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
@@ -53,9 +54,9 @@ const StoreSchedule = () => {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate("/auth");
+      navigate("/auth", { state: { from: location.pathname } });
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, navigate, location.pathname]);
 
   const fetchStore = useCallback(async () => {
     if (!user) return;
