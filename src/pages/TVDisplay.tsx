@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Tv, Loader2, Clock, Calendar, Play } from "lucide-react";
+import { format } from "date-fns";
 
 interface AdContent {
   id: string;
@@ -51,6 +52,9 @@ export default function TVDisplay() {
     return () => clearInterval(timer);
   }, []);
 
+  // Local date, so the evening's ads are not looked up under tomorrow's UTC date
+  const today = format(currentTime, "yyyy-MM-dd");
+
   // Fetch store info
   useEffect(() => {
     const fetchStoreInfo = async () => {
@@ -80,8 +84,6 @@ export default function TVDisplay() {
   useEffect(() => {
     const fetchContent = async () => {
       if (!storeId) return;
-
-      const today = new Date().toISOString().split("T")[0];
 
       // Fetch scheduled ads for today
       const { data: ads, error: adsError } = await supabase
@@ -140,7 +142,7 @@ export default function TVDisplay() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [storeId]);
+  }, [storeId, today]);
 
   // Check for scheduled ads and play them
   const checkAndPlayAd = useCallback(() => {
