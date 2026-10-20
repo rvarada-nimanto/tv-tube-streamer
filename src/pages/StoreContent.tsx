@@ -254,6 +254,8 @@ export default function StoreContent() {
       });
 
     if (insertError) {
+      // Don't leave a file in storage that no row points at
+      await supabase.storage.from("store-content").remove([fileName]);
       toast({
         title: "Error saving content",
         description: insertError.message,
