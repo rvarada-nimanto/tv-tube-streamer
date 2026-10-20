@@ -159,6 +159,7 @@ export default function StoreSetup() {
                 <Label htmlFor="storeName">Store Name *</Label>
                 <Input
                   id="storeName"
+                  autoComplete="organization"
                   placeholder="My Awesome Store"
                   value={formData.storeName}
                   onChange={(e) => setFormData({ ...formData, storeName: e.target.value })}
@@ -192,6 +193,7 @@ export default function StoreSetup() {
                 <Label htmlFor="address">Street Address *</Label>
                 <Input
                   id="address"
+                  autoComplete="street-address"
                   placeholder="123 Main Street"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
@@ -205,6 +207,7 @@ export default function StoreSetup() {
                   <Label htmlFor="city">City *</Label>
                   <Input
                     id="city"
+                    autoComplete="address-level2"
                     placeholder="City"
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
@@ -215,6 +218,7 @@ export default function StoreSetup() {
                   <Label htmlFor="state">State *</Label>
                   <Input
                     id="state"
+                    autoComplete="address-level1"
                     placeholder="CA"
                     value={formData.state}
                     onChange={(e) => setFormData({ ...formData, state: e.target.value })}
@@ -225,6 +229,7 @@ export default function StoreSetup() {
                   <Label htmlFor="zipCode">ZIP Code *</Label>
                   <Input
                     id="zipCode"
+                    autoComplete="postal-code"
                     placeholder="12345"
                     value={formData.zipCode}
                     onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
