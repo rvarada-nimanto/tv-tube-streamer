@@ -46,6 +46,7 @@ export default function Dashboard() {
   const [store, setStore] = useState<Store | null>(null);
   const [sponsor, setSponsor] = useState<AdSponsor | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [adsToday, setAdsToday] = useState(0);
   const [contentCount, setContentCount] = useState(0);
 
@@ -60,11 +61,15 @@ export default function Dashboard() {
       if (!user) return;
 
       // Fetch profile
-      const { data: profileData } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("first_name, last_name, user_type")
         .eq("user_id", user.id)
         .single();
+
+      if (profileError) {
+        setLoadError(profileError.message);
+      }
 
       if (profileData) {
         setProfile(profileData);
@@ -149,6 +154,20 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
+        {loadError && (
+          <Card className="mb-8 border-destructive/50">
+            <CardHeader>
+              <CardTitle>Couldn't load your account</CardTitle>
+              <CardDescription>{loadError}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" onClick={() => window.location.reload()}>
+                Try again
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Setup Banner - Show if no store/sponsor set up */}
         {isStore && !store && (
           <Card className="mb-8 border-primary/50 bg-primary/5">
