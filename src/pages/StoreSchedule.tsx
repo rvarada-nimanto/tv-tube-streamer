@@ -8,8 +8,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { format, addMinutes, parse, isWithinInterval } from "date-fns";
-import { CalendarIcon, Clock, Tv, ArrowLeft, Play, CheckCircle } from "lucide-react";
+import { format, addMinutes, parse } from "date-fns";
+import { Clock, Tv, ArrowLeft, Play, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Store {
