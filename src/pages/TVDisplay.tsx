@@ -271,6 +271,7 @@ export default function TVDisplay() {
           src={contentUrl}
           autoPlay
           muted
+          playsInline
           loop={!isPlaying}
           className="w-full h-full object-cover"
           onEnded={() => !isPlaying && playDefaultContent()}
