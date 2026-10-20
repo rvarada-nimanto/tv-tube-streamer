@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -54,19 +54,7 @@ const StoreSchedule = () => {
     }
   }, [user, authLoading, navigate]);
 
-  useEffect(() => {
-    if (user) {
-      fetchStore();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (store && selectedDate) {
-      fetchScheduledAds();
-    }
-  }, [store, selectedDate]);
-
-  const fetchStore = async () => {
+  const fetchStore = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from("stores")
@@ -75,7 +63,7 @@ const StoreSchedule = () => {
         .maybeSingle();
 
       if (error) throw error;
-      
+
       if (!data) {
         toast({
           title: "No store found",
@@ -85,23 +73,32 @@ const StoreSchedule = () => {
         navigate("/store/setup");
         return;
       }
-      
+
       setStore(data);
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
-        description: error.message,
+        description: error instanceof Error ? error.message : String(error),
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast, navigate]);
 
-  const fetchScheduledAds = async () => {
-    if (!store) return;
-    
-    try {
+  useEffect(() => {
+    if (user) {
+      fetchStore();
+    }
+  }, [user, fetchStore]);
+
+  useEffect(() => {
+    if (!store || !selectedDate) return;
+
+    // Ignore responses for a date the user has already moved away from.
+    let cancelled = false;
+
+    const fetchScheduledAds = async () => {
       const dateStr = format(selectedDate, "yyyy-MM-dd");
       const { data, error } = await supabase
         .from("ad_schedule")
@@ -121,12 +118,27 @@ const StoreSchedule = () => {
         .eq("scheduled_date", dateStr)
         .order("slot_time");
 
-      if (error) throw error;
+      if (cancelled) return;
+
+      if (error) {
+        console.error("Error fetching scheduled ads:", error);
+        toast({
+          title: "Couldn't load the schedule",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
       setScheduledAds(data || []);
-    } catch (error: any) {
-      console.error("Error fetching scheduled ads:", error);
-    }
-  };
+    };
+
+    fetchScheduledAds();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [store, selectedDate, toast]);
 
   const generateTimeSlots = (): TimeSlot[] => {
     if (!store) return [];
