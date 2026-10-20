@@ -320,7 +320,7 @@ export default function TVDisplay() {
   }
 
   return (
-    <div className="dark tv-display relative overflow-hidden">
+    <div className="dark tv-display relative overflow-hidden cursor-none">
       {/* Main Content Area */}
       <div className="absolute inset-0">
         {renderContent()}
