@@ -384,7 +384,7 @@ export default function StoreContent() {
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground mt-1">
-                      {contentType === "image" ? "JPG, PNG, GIF, WebP (max 10MB)" : "MP4, WebM (max 50MB)"}
+                      {contentType === "image" ? "JPG, PNG, GIF, WebP (max 10MB)" : "MP4, WebM, MOV (max 50MB)"}
                     </p>
                   </label>
                 </div>
