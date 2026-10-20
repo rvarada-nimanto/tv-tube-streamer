@@ -246,6 +246,7 @@ export default function TVDisplay() {
           <iframe
             src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`}
             className="w-full h-full"
+            title={currentContent.title || "YouTube video"}
             allow="autoplay; encrypted-media"
             allowFullScreen
           />
