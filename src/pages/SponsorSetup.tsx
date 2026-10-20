@@ -128,6 +128,7 @@ export default function SponsorSetup() {
                 <Label htmlFor="companyName">Company Name *</Label>
                 <Input
                   id="companyName"
+                  autoComplete="organization"
                   placeholder="Acme Corporation"
                   value={formData.companyName}
                   onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
@@ -161,6 +162,7 @@ export default function SponsorSetup() {
                 <Label htmlFor="website">Website (Optional)</Label>
                 <Input
                   id="website"
+                  autoComplete="url"
                   type="url"
                   placeholder="https://example.com"
                   value={formData.website}
@@ -173,6 +175,7 @@ export default function SponsorSetup() {
                 <Label htmlFor="address">Street Address (Optional)</Label>
                 <Input
                   id="address"
+                  autoComplete="street-address"
                   placeholder="123 Business Ave"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
@@ -185,6 +188,7 @@ export default function SponsorSetup() {
                   <Label htmlFor="city">City</Label>
                   <Input
                     id="city"
+                    autoComplete="address-level2"
                     placeholder="City"
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
@@ -194,6 +198,7 @@ export default function SponsorSetup() {
                   <Label htmlFor="state">State</Label>
                   <Input
                     id="state"
+                    autoComplete="address-level1"
                     placeholder="CA"
                     value={formData.state}
                     onChange={(e) => setFormData({ ...formData, state: e.target.value })}
@@ -203,6 +208,7 @@ export default function SponsorSetup() {
                   <Label htmlFor="zipCode">ZIP Code</Label>
                   <Input
                     id="zipCode"
+                    autoComplete="postal-code"
                     placeholder="12345"
                     value={formData.zipCode}
                     onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
