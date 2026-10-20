@@ -36,7 +36,7 @@ export default function TVDisplay() {
   const [storeName, setStoreName] = useState<string>("");
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [defaultContentIndex, setDefaultContentIndex] = useState(0);
+  const [defaultContentIndex, setDefaultContentIndex] = useState(-1);
 
   // Redirect if not authenticated
   useEffect(() => {
