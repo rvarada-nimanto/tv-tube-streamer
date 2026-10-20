@@ -224,9 +224,9 @@ export default function TVDisplay() {
 
   useEffect(() => () => clearTimeout(adTimeoutRef.current), []);
 
-  // Check for ads every minute
+  // Check for due ads every 15 seconds
   useEffect(() => {
-    const interval = setInterval(checkAndPlayAd, 60000);
+    const interval = setInterval(checkAndPlayAd, 15000);
     checkAndPlayAd(); // Check immediately
     return () => clearInterval(interval);
   }, [checkAndPlayAd]);
