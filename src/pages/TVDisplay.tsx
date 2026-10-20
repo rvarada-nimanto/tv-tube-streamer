@@ -263,6 +263,16 @@ export default function TVDisplay() {
     return () => clearInterval(interval);
   }, [checkAndPlayAd]);
 
+  // Fetch the next image ahead of time so the switch doesn't flash
+  useEffect(() => {
+    if (defaultContent.length < 2) return;
+    const next = defaultContent[(defaultContentIndex + 1) % defaultContent.length];
+    if (next?.content_type === "image") {
+      const img = new Image();
+      img.src = next.content_url;
+    }
+  }, [defaultContent, defaultContentIndex]);
+
   // Rotate default content every 30 seconds when not playing ads
   useEffect(() => {
     if (isPlaying) return;
