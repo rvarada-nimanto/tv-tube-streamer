@@ -68,14 +68,14 @@ export default function Dashboard() {
             .from("stores")
             .select("id, store_name, is_active")
             .eq("user_id", user.id)
-            .single();
+            .maybeSingle();
           setStore(storeData);
         } else if (profileData.user_type === "ad_sponsor") {
           const { data: sponsorData } = await supabase
             .from("ad_sponsors")
             .select("id, company_name")
             .eq("user_id", user.id)
-            .single();
+            .maybeSingle();
           setSponsor(sponsorData);
         }
       }
