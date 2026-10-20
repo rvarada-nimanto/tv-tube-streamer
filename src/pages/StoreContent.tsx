@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -14,6 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { extractYouTubeId, youtubeEmbedUrl } from "@/lib/youtube";
+import { checkUpload, UPLOAD_RULES, type UploadKind } from "@/lib/uploads";
 import { 
   ArrowLeft, 
   Upload, 
@@ -22,7 +25,8 @@ import {
   Image as ImageIcon,
   Video,
   Link as LinkIcon,
-  GripVertical,
+  ChevronUp,
+  ChevronDown,
   Plus
 } from "lucide-react";
 
@@ -71,9 +75,19 @@ export default function StoreContent() {
         .from("stores")
         .select("id, store_name")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
-      if (storeError || !storeData) {
+      if (storeError) {
+        toast({
+          title: "Couldn't load your store",
+          description: storeError.message,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (!storeData) {
         navigate("/store/setup");
         return;
       }
@@ -81,13 +95,19 @@ export default function StoreContent() {
       setStore(storeData);
 
       // Fetch content items
-      const { data: contentData } = await supabase
+      const { data: contentData, error: contentError } = await supabase
         .from("store_default_content")
         .select("*")
         .eq("store_id", storeData.id)
         .order("display_order", { ascending: true });
 
-      if (contentData) {
+      if (contentError) {
+        toast({
+          title: "Couldn't load your content",
+          description: contentError.message,
+          variant: "destructive",
+        });
+      } else if (contentData) {
         setContentItems(contentData);
       }
 
@@ -95,7 +115,7 @@ export default function StoreContent() {
     };
 
     fetchData();
-  }, [user, navigate]);
+  }, [user, navigate, toast]);
 
   // A file picked for one type must not be uploaded under another
   useEffect(() => {
@@ -107,34 +127,19 @@ export default function StoreContent() {
     // Reset so picking the same file again still fires onChange
     e.target.value = "";
     if (file) {
-      // Validate file type
-      const validTypes = contentType === "image" 
-        ? ["image/jpeg", "image/png", "image/gif", "image/webp"]
-        : ["video/mp4", "video/webm", "video/quicktime"];
-      
-      if (!validTypes.includes(file.type)) {
-        toast({
-          title: "Invalid file type",
-          description: `Please select a valid ${contentType} file`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Validate file size (max 50MB for videos, 10MB for images)
-      const maxSize = contentType === "video" ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
-      if (file.size > maxSize) {
-        toast({
-          title: "File too large",
-          description: `Maximum file size is ${contentType === "video" ? "50MB" : "10MB"}`,
-          variant: "destructive",
-        });
+      const problem = checkUpload(file, contentType as UploadKind);
+      if (problem) {
+        toast({ ...problem, variant: "destructive" });
         return;
       }
 
       setSelectedFile(file);
     }
   };
+
+  // One past the highest position; the count can collide after a delete
+  const nextDisplayOrder = () =>
+    contentItems.reduce((max, item) => Math.max(max, item.display_order ?? -1), -1) + 1;
 
   const handleUpload = async () => {
     if (!store || !user) return;
@@ -165,10 +170,10 @@ export default function StoreContent() {
         .from("store_default_content")
         .insert({
           store_id: store.id,
-          title: title || "YouTube Video",
+          title: title.trim() || "YouTube Video",
           content_type: "youtube",
-          content_url: `https://www.youtube.com/embed/${videoId}`,
-          display_order: contentItems.length,
+          content_url: youtubeEmbedUrl(videoId),
+          display_order: nextDisplayOrder(),
         });
 
       if (error) {
@@ -200,7 +205,8 @@ export default function StoreContent() {
 
     setUploading(true);
 
-    const fileExt = selectedFile.name.split(".").pop();
+    // From the checked MIME type, so files without an extension still get one
+    const fileExt = selectedFile.type.split("/")[1]?.replace("quicktime", "mov") || "bin";
     const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
     const { error: uploadError } = await supabase.storage
@@ -225,13 +231,15 @@ export default function StoreContent() {
       .from("store_default_content")
       .insert({
         store_id: store.id,
-        title: title || selectedFile.name,
+        title: title.trim() || selectedFile.name,
         content_type: contentType,
         content_url: urlData.publicUrl,
-        display_order: contentItems.length,
+        display_order: nextDisplayOrder(),
       });
 
     if (insertError) {
+      // Don't leave a file in storage that no row points at
+      await supabase.storage.from("store-content").remove([fileName]);
       toast({
         title: "Error saving content",
         description: insertError.message,
@@ -257,8 +265,55 @@ export default function StoreContent() {
     if (data) setContentItems(data);
   };
 
+  const moveItem = async (index: number, direction: -1 | 1) => {
+    const target = index + direction;
+    if (target < 0 || target >= contentItems.length) return;
+
+    const reordered = [...contentItems];
+    [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+    setContentItems(reordered);
+
+    // Save each item's list position as its display order
+    const results = await Promise.all(
+      reordered
+        .map((item, position) => ({ item, position }))
+        .filter(({ item, position }) => item.display_order !== position)
+        .map(({ item, position }) =>
+          supabase.from("store_default_content").update({ display_order: position }).eq("id", item.id)
+        )
+    );
+
+    const failed = results.find((result) => result.error);
+    if (failed) {
+      toast({
+        title: "Couldn't save the new order",
+        description: failed.error?.message,
+        variant: "destructive",
+      });
+    }
+    refreshContent();
+  };
+
+  const setItemActive = async (item: ContentItem, isActive: boolean) => {
+    setContentItems((items) => items.map((i) => (i.id === item.id ? { ...i, is_active: isActive } : i)));
+
+    const { error } = await supabase
+      .from("store_default_content")
+      .update({ is_active: isActive })
+      .eq("id", item.id);
+
+    if (error) {
+      toast({
+        title: "Couldn't update the item",
+        description: error.message,
+        variant: "destructive",
+      });
+      refreshContent();
+    }
+  };
+
   const handleDelete = async (item: ContentItem) => {
-    if (!confirm("Are you sure you want to delete this content?")) return;
+    if (!confirm(`Delete "${item.title || "this content"}"? This can't be undone.`)) return;
 
     // Delete from storage if it's not a YouTube link
     if (item.content_type !== "youtube" && item.content_url.includes("store-content")) {
@@ -283,12 +338,6 @@ export default function StoreContent() {
       toast({ title: "Content deleted" });
       refreshContent();
     }
-  };
-
-  const extractYouTubeId = (url: string): string | null => {
-    const regex = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/;
-    const match = url.match(regex);
-    return match ? match[1] : null;
   };
 
   const getContentIcon = (type: string) => {
@@ -379,11 +428,11 @@ export default function StoreContent() {
                   <input
                     type="file"
                     id="file-upload"
-                    className="hidden"
+                    className="sr-only peer"
                     accept={contentType === "image" ? "image/*" : "video/*"}
                     onChange={handleFileSelect}
                   />
-                  <label htmlFor="file-upload" className="cursor-pointer">
+                  <label htmlFor="file-upload" className="block cursor-pointer rounded-md peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2">
                     <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                     {selectedFile ? (
                       <p className="text-sm font-medium">{selectedFile.name}</p>
@@ -393,7 +442,7 @@ export default function StoreContent() {
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground mt-1">
-                      {contentType === "image" ? "JPG, PNG, GIF, WebP (max 10MB)" : "MP4, WebM, MOV (max 50MB)"}
+                      {UPLOAD_RULES[contentType as UploadKind].hint}
                     </p>
                   </label>
                 </div>
@@ -433,25 +482,57 @@ export default function StoreContent() {
               </div>
             ) : (
               <div className="space-y-3">
-                {contentItems.map((item) => (
+                {contentItems.map((item, index) => (
                   <div 
                     key={item.id} 
-                    className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg"
+                    className={`flex items-center gap-4 p-3 bg-muted/50 rounded-lg ${item.is_active === false ? "opacity-60" : ""}`}
                   >
-                    <GripVertical className="w-5 h-5 text-muted-foreground cursor-grab" />
+                    <div className="flex flex-col">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => moveItem(index, -1)}
+                        disabled={index === 0}
+                        aria-label={`Move ${item.title || "item"} up`}
+                      >
+                        <ChevronUp className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => moveItem(index, 1)}
+                        disabled={index === contentItems.length - 1}
+                        aria-label={`Move ${item.title || "item"} down`}
+                      >
+                        <ChevronDown className="w-4 h-4" />
+                      </Button>
+                    </div>
                     
                     {/* Thumbnail */}
                     <div className="w-20 h-12 bg-background rounded overflow-hidden flex-shrink-0">
                       {item.content_type === "image" ? (
                         <img 
                           src={item.content_url} 
-                          alt={item.title || "Content"} 
+                          alt={item.title || "Content"}
+                          loading="lazy"
                           className="w-full h-full object-cover"
                         />
-                      ) : item.content_type === "youtube" ? (
-                        <div className="w-full h-full flex items-center justify-center bg-red-500/10">
-                          <Video className="w-6 h-6 text-red-500" />
-                        </div>
+                      ) : item.content_type === "youtube" && extractYouTubeId(item.content_url) ? (
+                        <img
+                          src={`https://i.ytimg.com/vi/${extractYouTubeId(item.content_url)}/mqdefault.jpg`}
+                          alt={item.title || "YouTube video"}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : item.content_type === "video" ? (
+                        <video
+                          src={item.content_url}
+                          muted
+                          playsInline
+                          preload="metadata"
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <Video className="w-6 h-6 text-primary" />
@@ -465,10 +546,16 @@ export default function StoreContent() {
                       <p className="text-sm text-muted-foreground flex items-center gap-1">
                         {getContentIcon(item.content_type)}
                         {item.content_type}
+                        {item.is_active === false && " · Paused"}
                       </p>
                     </div>
 
                     {/* Actions */}
+                    <Switch
+                      checked={item.is_active !== false}
+                      onCheckedChange={(checked) => setItemActive(item, checked)}
+                      aria-label={`Show ${item.title || "item"} on TV`}
+                    />
                     <Button 
                       variant="ghost" 
                       size="icon"

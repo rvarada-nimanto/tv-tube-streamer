@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,7 +38,7 @@ const AD_CATEGORIES = [
 ];
 
 export default function StoreSetup() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -54,6 +54,26 @@ export default function StoreSetup() {
     closingTime: "21:00",
     adCategories: [] as string[],
   });
+
+  // Signed-out visitors sign in first
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
+
+  // Each account has one store; setting it up again can only fail
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("stores")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) navigate("/dashboard", { replace: true });
+      });
+  }, [user, navigate]);
 
   const handleCategoryToggle = (category: string) => {
     setFormData((prev) => ({
@@ -72,12 +92,12 @@ export default function StoreSetup() {
 
     const { error } = await supabase.from("stores").insert({
       user_id: user.id,
-      store_name: formData.storeName,
+      store_name: formData.storeName.trim(),
       store_type: formData.storeType as "restaurant" | "retail" | "grocery" | "pharmacy" | "salon" | "gym" | "medical" | "automotive" | "entertainment" | "other",
-      address: formData.address,
-      city: formData.city,
-      state: formData.state,
-      zip_code: formData.zipCode,
+      address: formData.address.trim(),
+      city: formData.city.trim(),
+      state: formData.state.trim(),
+      zip_code: formData.zipCode.trim(),
       opening_time: formData.openingTime,
       closing_time: formData.closingTime,
       ad_categories: formData.adCategories as ("food" | "retail" | "health" | "beauty" | "automotive" | "entertainment" | "technology" | "real_estate" | "services" | "other")[],
@@ -89,7 +109,9 @@ export default function StoreSetup() {
     if (error) {
       toast({
         title: "Error",
-        description: "Failed to create store. Please try again.",
+        description: error.code === "23505"
+          ? "This account already has a store."
+          : `Failed to create store: ${error.message}`,
         variant: "destructive",
       });
       return;
@@ -100,7 +122,7 @@ export default function StoreSetup() {
       description: "Your store is now set up and ready to receive ads.",
     });
 
-    navigate("/");
+    navigate("/dashboard");
   };
 
   return (
@@ -109,7 +131,7 @@ export default function StoreSetup() {
         <Button
           variant="ghost"
           className="mb-6"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/dashboard")}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Dashboard
@@ -137,6 +159,7 @@ export default function StoreSetup() {
                 <Label htmlFor="storeName">Store Name *</Label>
                 <Input
                   id="storeName"
+                  autoComplete="organization"
                   placeholder="My Awesome Store"
                   value={formData.storeName}
                   onChange={(e) => setFormData({ ...formData, storeName: e.target.value })}
@@ -170,6 +193,7 @@ export default function StoreSetup() {
                 <Label htmlFor="address">Street Address *</Label>
                 <Input
                   id="address"
+                  autoComplete="street-address"
                   placeholder="123 Main Street"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
@@ -183,6 +207,7 @@ export default function StoreSetup() {
                   <Label htmlFor="city">City *</Label>
                   <Input
                     id="city"
+                    autoComplete="address-level2"
                     placeholder="City"
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
@@ -193,6 +218,7 @@ export default function StoreSetup() {
                   <Label htmlFor="state">State *</Label>
                   <Input
                     id="state"
+                    autoComplete="address-level1"
                     placeholder="CA"
                     value={formData.state}
                     onChange={(e) => setFormData({ ...formData, state: e.target.value })}
@@ -203,6 +229,7 @@ export default function StoreSetup() {
                   <Label htmlFor="zipCode">ZIP Code *</Label>
                   <Input
                     id="zipCode"
+                    autoComplete="postal-code"
                     placeholder="12345"
                     value={formData.zipCode}
                     onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}

@@ -8,8 +8,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { format, addMinutes, parse, isWithinInterval } from "date-fns";
-import { CalendarIcon, Clock, Tv, ArrowLeft, Play, CheckCircle } from "lucide-react";
+import { format, parse } from "date-fns";
+import { slotTimes } from "@/lib/schedule";
+import { Clock, Tv, ArrowLeft, Play, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Store {
@@ -142,29 +143,11 @@ const StoreSchedule = () => {
 
   const generateTimeSlots = (): TimeSlot[] => {
     if (!store) return [];
-    
-    const slots: TimeSlot[] = [];
-    const slotDuration = 15; // 15-minute slots
-    
-    const openTime = parse(store.opening_time, "HH:mm:ss", new Date());
-    const closeTime = parse(store.closing_time, "HH:mm:ss", new Date());
-    
-    let currentTime = openTime;
-    
-    while (currentTime < closeTime) {
-      const timeStr = format(currentTime, "HH:mm:ss");
-      const bookedAd = scheduledAds.find(ad => ad.slot_time === timeStr);
-      
-      slots.push({
-        time: timeStr,
-        isBooked: !!bookedAd,
-        ad: bookedAd,
-      });
-      
-      currentTime = addMinutes(currentTime, slotDuration);
-    }
-    
-    return slots;
+
+    return slotTimes(store.opening_time, store.closing_time).map((time) => {
+      const bookedAd = scheduledAds.find((ad) => ad.slot_time === time);
+      return { time, isBooked: !!bookedAd, ad: bookedAd };
+    });
   };
 
   const timeSlots = generateTimeSlots();
@@ -258,7 +241,12 @@ const StoreSchedule = () => {
           {/* Calendar */}
           <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-lg">Select Date</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Select Date</CardTitle>
+                <Button variant="outline" size="sm" onClick={() => setSelectedDate(new Date())}>
+                  Today
+                </Button>
+              </div>
               <CardDescription>View schedule for a specific day</CardDescription>
             </CardHeader>
             <CardContent>
@@ -304,6 +292,8 @@ const StoreSchedule = () => {
                     <Popover key={slot.time}>
                       <PopoverTrigger asChild>
                         <button
+                          type="button"
+                          aria-label={`${format(parse(slot.time, "HH:mm:ss", new Date()), "h:mm a")}, ${slot.isBooked ? "booked" : "available"}`}
                           className={cn(
                             "p-2 rounded-lg text-xs font-medium transition-all hover:scale-105",
                             slot.isBooked
@@ -383,6 +373,8 @@ const StoreSchedule = () => {
                       <Badge variant="secondary">{ad.ads?.category}</Badge>
                       {ad.played_at ? (
                         <Badge className="bg-green-500/20 text-green-600 border-green-500/30">Played</Badge>
+                      ) : parse(ad.slot_time, "HH:mm:ss", selectedDate) < new Date() ? (
+                        <Badge variant="outline" className="text-destructive border-destructive/30">Missed</Badge>
                       ) : (
                         <Badge variant="outline">Pending</Badge>
                       )}

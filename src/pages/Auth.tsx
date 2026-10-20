@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
@@ -27,13 +27,13 @@ export default function Auth() {
 
   useEffect(() => {
     if (user) {
-      navigate("/");
+      navigate("/dashboard");
     }
   }, [user, navigate]);
 
   const validateForm = () => {
     try {
-      emailSchema.parse(email);
+      emailSchema.parse(email.trim());
       passwordSchema.parse(password);
       return true;
     } catch (error) {
@@ -53,7 +53,7 @@ export default function Auth() {
     if (!validateForm()) return;
 
     setIsLoading(true);
-    const { error } = await signIn(email, password);
+    const { error } = await signIn(email.trim(), password);
     setIsLoading(false);
 
     if (error) {
@@ -77,7 +77,7 @@ export default function Auth() {
     if (!validateForm()) return;
 
     setIsLoading(true);
-    const { error } = await signUp(email, password, {
+    const { error, session } = await signUp(email.trim(), password, {
       first_name: firstName,
       last_name: lastName,
       user_type: userType,
@@ -101,7 +101,9 @@ export default function Auth() {
     } else {
       toast({
         title: "Account Created!",
-        description: "You can now sign in to your account.",
+        description: session
+          ? "You're signed in."
+          : "Check your e-mail to confirm your account, then sign in.",
       });
     }
   };
@@ -138,6 +140,7 @@ export default function Auth() {
                     <Input
                       id="signin-email"
                       type="email"
+                      autoComplete="email"
                       placeholder="you@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -149,6 +152,7 @@ export default function Auth() {
                     <Input
                       id="signin-password"
                       type="password"
+                      autoComplete="current-password"
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -173,6 +177,7 @@ export default function Auth() {
                       <Label htmlFor="firstName">First Name</Label>
                       <Input
                         id="firstName"
+                        autoComplete="given-name"
                         placeholder="John"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
@@ -182,6 +187,7 @@ export default function Auth() {
                       <Label htmlFor="lastName">Last Name</Label>
                       <Input
                         id="lastName"
+                        autoComplete="family-name"
                         placeholder="Doe"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
@@ -217,6 +223,7 @@ export default function Auth() {
                     <Input
                       id="signup-email"
                       type="email"
+                      autoComplete="email"
                       placeholder="you@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -228,11 +235,17 @@ export default function Auth() {
                     <Input
                       id="signup-password"
                       type="password"
+                      autoComplete="new-password"
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      minLength={6}
+                      aria-describedby="signup-password-hint"
                       required
                     />
+                    <p id="signup-password-hint" className="text-xs text-muted-foreground">
+                      At least 6 characters
+                    </p>
                   </div>
                   <Button 
                     type="submit" 

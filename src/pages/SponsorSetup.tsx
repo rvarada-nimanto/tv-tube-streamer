@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,7 +21,7 @@ const COMPANY_TYPES = [
 ];
 
 export default function SponsorSetup() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +36,26 @@ export default function SponsorSetup() {
     zipCode: "",
   });
 
+  // Signed-out visitors sign in first
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
+
+  // Each account has one company profile; setting it up again can only fail
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("ad_sponsors")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) navigate("/dashboard", { replace: true });
+      });
+  }, [user, navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -44,13 +64,15 @@ export default function SponsorSetup() {
 
     const { error } = await supabase.from("ad_sponsors").insert({
       user_id: user.id,
-      company_name: formData.companyName,
+      company_name: formData.companyName.trim(),
       company_type: formData.companyType,
-      website: formData.website || null,
-      address: formData.address || null,
-      city: formData.city || null,
-      state: formData.state || null,
-      zip_code: formData.zipCode || null,
+      website: formData.website.trim()
+        ? (/^https?:\/\//i.test(formData.website.trim()) ? "" : "https://") + formData.website.trim()
+        : null,
+      address: formData.address.trim() || null,
+      city: formData.city.trim() || null,
+      state: formData.state.trim() || null,
+      zip_code: formData.zipCode.trim() || null,
     });
 
     setIsLoading(false);
@@ -58,7 +80,9 @@ export default function SponsorSetup() {
     if (error) {
       toast({
         title: "Error",
-        description: "Failed to create company profile. Please try again.",
+        description: error.code === "23505"
+          ? "This account already has a company profile."
+          : `Failed to create company profile: ${error.message}`,
         variant: "destructive",
       });
       return;
@@ -69,7 +93,7 @@ export default function SponsorSetup() {
       description: "You can now start posting ads on store TVs.",
     });
 
-    navigate("/");
+    navigate("/dashboard");
   };
 
   return (
@@ -78,7 +102,7 @@ export default function SponsorSetup() {
         <Button
           variant="ghost"
           className="mb-6"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/dashboard")}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Dashboard
@@ -106,6 +130,7 @@ export default function SponsorSetup() {
                 <Label htmlFor="companyName">Company Name *</Label>
                 <Input
                   id="companyName"
+                  autoComplete="organization"
                   placeholder="Acme Corporation"
                   value={formData.companyName}
                   onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
@@ -139,6 +164,7 @@ export default function SponsorSetup() {
                 <Label htmlFor="website">Website (Optional)</Label>
                 <Input
                   id="website"
+                  autoComplete="url"
                   type="url"
                   placeholder="https://example.com"
                   value={formData.website}
@@ -151,6 +177,7 @@ export default function SponsorSetup() {
                 <Label htmlFor="address">Street Address (Optional)</Label>
                 <Input
                   id="address"
+                  autoComplete="street-address"
                   placeholder="123 Business Ave"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
@@ -163,6 +190,7 @@ export default function SponsorSetup() {
                   <Label htmlFor="city">City</Label>
                   <Input
                     id="city"
+                    autoComplete="address-level2"
                     placeholder="City"
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
@@ -172,6 +200,7 @@ export default function SponsorSetup() {
                   <Label htmlFor="state">State</Label>
                   <Input
                     id="state"
+                    autoComplete="address-level1"
                     placeholder="CA"
                     value={formData.state}
                     onChange={(e) => setFormData({ ...formData, state: e.target.value })}
@@ -181,6 +210,7 @@ export default function SponsorSetup() {
                   <Label htmlFor="zipCode">ZIP Code</Label>
                   <Input
                     id="zipCode"
+                    autoComplete="postal-code"
                     placeholder="12345"
                     value={formData.zipCode}
                     onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}

@@ -24,13 +24,15 @@ export default function TVLogin() {
     e.preventDefault();
     setIsLoading(true);
     
-    const { error } = await signIn(email, password);
+    const { error } = await signIn(email.trim(), password);
     setIsLoading(false);
 
     if (error) {
       toast({
         title: "Login Failed",
-        description: "Invalid credentials. Please try again.",
+        description: error.message === "Invalid login credentials"
+          ? "Invalid credentials. Please try again."
+          : error.message,
         variant: "destructive",
       });
     }
@@ -98,7 +100,7 @@ export default function TVLogin() {
           Use your store account credentials to login
         </p>
         <p className="mt-2 text-sm text-muted-foreground/50">
-          Register at adstation.com to create a store account
+          Register at {window.location.host}/auth to create a store account
         </p>
       </div>
     </div>

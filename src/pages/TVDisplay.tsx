@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Tv, Loader2, Clock, Calendar, Play } from "lucide-react";
 import { format } from "date-fns";
+import { extractYouTubeId } from "@/lib/youtube";
 
 interface AdContent {
   id: string;
@@ -38,6 +39,7 @@ export default function TVDisplay() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [defaultContentIndex, setDefaultContentIndex] = useState(-1);
+  const [noStore, setNoStore] = useState(false);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -52,6 +54,27 @@ export default function TVDisplay() {
     return () => clearInterval(timer);
   }, []);
 
+  // Keep the screen from sleeping while the display runs
+  useEffect(() => {
+    let lock: WakeLockSentinel | undefined;
+    const request = async () => {
+      try {
+        lock = await navigator.wakeLock?.request("screen");
+      } catch {
+        // Not supported or not allowed; the device's own sleep settings apply
+      }
+    };
+    const onVisible = () => {
+      if (document.visibilityState === "visible") request();
+    };
+    request();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      lock?.release();
+    };
+  }, []);
+
   // Local date, so the evening's ads are not looked up under tomorrow's UTC date
   const today = format(currentTime, "yyyy-MM-dd");
 
@@ -64,7 +87,7 @@ export default function TVDisplay() {
         .from("stores")
         .select("id, store_name")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching store:", error);
@@ -74,6 +97,8 @@ export default function TVDisplay() {
       if (store) {
         setStoreId(store.id);
         setStoreName(store.store_name);
+      } else {
+        setNoStore(true);
       }
     };
 
@@ -124,7 +149,7 @@ export default function TVDisplay() {
 
     // Set up realtime subscription for schedule updates
     const channel = supabase
-      .channel("ad-schedule-changes")
+      .channel(`ad-schedule-${storeId}`)
       .on(
         "postgres_changes",
         {
@@ -137,22 +162,60 @@ export default function TVDisplay() {
           fetchContent();
         }
       )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "store_default_content",
+          filter: `store_id=eq.${storeId}`,
+        },
+        () => {
+          fetchContent();
+        }
+      )
       .subscribe();
 
+    // Catch up on anything missed while the TV was offline
+    const handleOnline = () => fetchContent();
+    window.addEventListener("online", handleOnline);
+
     return () => {
+      window.removeEventListener("online", handleOnline);
       supabase.removeChannel(channel);
     };
   }, [storeId, today]);
+
+  // Play default content in rotation
+  const playDefaultContent = useCallback(() => {
+    if (defaultContent.length === 0) {
+      setCurrentContent(null);
+      return;
+    }
+
+    const nextIndex = (defaultContentIndex + 1) % defaultContent.length;
+    setDefaultContentIndex(nextIndex);
+    setCurrentContent(defaultContent[nextIndex]);
+  }, [defaultContent, defaultContentIndex]);
+
+  // Timers started earlier call the latest version
+  const playDefaultContentRef = useRef(playDefaultContent);
+  const adTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => {
+    playDefaultContentRef.current = playDefaultContent;
+  }, [playDefaultContent]);
 
   // Check for scheduled ads and play them
   const checkAndPlayAd = useCallback(() => {
     const now = new Date();
     const currentTimeStr = now.toTimeString().slice(0, 5);
 
-    // Find ad scheduled for current time (within 1 minute window)
+    // Find an unplayed ad whose slot started in the last 2 minutes, so a late
+    // or restarted check still plays it
+    const graceStartStr = new Date(now.getTime() - 2 * 60 * 1000).toTimeString().slice(0, 5);
     const scheduledAd = scheduledAds.find((ad) => {
       const adTime = ad.slot_time.slice(0, 5);
-      return adTime === currentTimeStr;
+      return adTime <= currentTimeStr && adTime >= graceStartStr;
     });
 
     if (scheduledAd && scheduledAd.ad) {
@@ -173,28 +236,19 @@ export default function TVDisplay() {
         });
 
       // Switch back to default content after ad duration
-      setTimeout(() => {
+      clearTimeout(adTimeoutRef.current);
+      adTimeoutRef.current = setTimeout(() => {
         setIsPlaying(false);
-        playDefaultContent();
+        playDefaultContentRef.current();
       }, (scheduledAd.ad.duration_seconds || 15) * 1000);
     }
   }, [scheduledAds]);
 
-  // Play default content in rotation
-  const playDefaultContent = useCallback(() => {
-    if (defaultContent.length === 0) {
-      setCurrentContent(null);
-      return;
-    }
+  useEffect(() => () => clearTimeout(adTimeoutRef.current), []);
 
-    const nextIndex = (defaultContentIndex + 1) % defaultContent.length;
-    setDefaultContentIndex(nextIndex);
-    setCurrentContent(defaultContent[nextIndex]);
-  }, [defaultContent, defaultContentIndex]);
-
-  // Check for ads every minute
+  // Check for due ads every 15 seconds
   useEffect(() => {
-    const interval = setInterval(checkAndPlayAd, 60000);
+    const interval = setInterval(checkAndPlayAd, 15000);
     checkAndPlayAd(); // Check immediately
     return () => clearInterval(interval);
   }, [checkAndPlayAd]);
@@ -218,9 +272,13 @@ export default function TVDisplay() {
           <div className="animate-pulse-glow p-8 rounded-full bg-secondary/30">
             <Tv className="w-32 h-32 text-primary" />
           </div>
-          <h2 className="tv-heading mt-8 text-muted-foreground">No Content Scheduled</h2>
+          <h2 className="tv-heading mt-8 text-muted-foreground">
+            {noStore ? "No Store on This Account" : "No Content Scheduled"}
+          </h2>
           <p className="tv-body text-muted-foreground/60 mt-4">
-            Add content in your store dashboard
+            {noStore
+              ? "Sign in with a store owner account, or set up your store in the dashboard"
+              : "Add content in your store dashboard"}
           </p>
         </div>
       );
@@ -235,16 +293,17 @@ export default function TVDisplay() {
           src={contentUrl}
           autoPlay
           muted
+          playsInline
           loop={!isPlaying}
           className="w-full h-full object-cover"
           onEnded={() => !isPlaying && playDefaultContent()}
+          onError={() => !isPlaying && playDefaultContent()}
         />
       );
     }
 
     if (contentType === "youtube") {
-      // Extract video ID from YouTube URL
-      const videoId = contentUrl.match(/(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/)?.[1];
+      const videoId = extractYouTubeId(contentUrl);
       
       if (videoId) {
         return (
@@ -265,6 +324,7 @@ export default function TVDisplay() {
           src={contentUrl}
           alt={"title" in currentContent ? currentContent.title || "" : ""}
           className="w-full h-full object-cover"
+          onError={() => !isPlaying && playDefaultContent()}
         />
       );
     }
@@ -281,7 +341,7 @@ export default function TVDisplay() {
   }
 
   return (
-    <div className="dark tv-display relative overflow-hidden">
+    <div className="dark tv-display relative overflow-hidden cursor-none">
       {/* Main Content Area */}
       <div className="absolute inset-0">
         {renderContent()}
