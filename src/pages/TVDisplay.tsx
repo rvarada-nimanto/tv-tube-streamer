@@ -64,7 +64,7 @@ export default function TVDisplay() {
         .from("stores")
         .select("id, store_name")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching store:", error);
