@@ -466,10 +466,12 @@ export default function StoreContent() {
                           alt={item.title || "Content"} 
                           className="w-full h-full object-cover"
                         />
-                      ) : item.content_type === "youtube" ? (
-                        <div className="w-full h-full flex items-center justify-center bg-red-500/10">
-                          <Video className="w-6 h-6 text-red-500" />
-                        </div>
+                      ) : item.content_type === "youtube" && extractYouTubeId(item.content_url) ? (
+                        <img
+                          src={`https://i.ytimg.com/vi/${extractYouTubeId(item.content_url)}/mqdefault.jpg`}
+                          alt={item.title || "YouTube video"}
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <Video className="w-6 h-6 text-primary" />
