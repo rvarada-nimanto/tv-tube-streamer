@@ -455,7 +455,10 @@ export default function StoreContent() {
               </div>
             )}
 
-            <Button onClick={handleUpload} disabled={uploading} className="w-full sm:w-auto">
+            <Button
+              onClick={handleUpload}
+              disabled={uploading || (contentType === "youtube" ? !youtubeUrl.trim() : !selectedFile)}
+              className="w-full sm:w-auto">
               {uploading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
