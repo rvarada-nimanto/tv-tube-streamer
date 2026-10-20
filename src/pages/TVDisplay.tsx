@@ -264,6 +264,14 @@ export default function TVDisplay() {
     return () => clearInterval(interval);
   }, [isPlaying, playDefaultContent, currentContent, defaultContent]);
 
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    }
+  };
+
   // Render content based on type
   const renderContent = () => {
     if (!currentContent) {
@@ -341,7 +349,7 @@ export default function TVDisplay() {
   }
 
   return (
-    <div className="dark tv-display relative overflow-hidden cursor-none">
+    <div className="dark tv-display relative overflow-hidden cursor-none" onDoubleClick={toggleFullscreen}>
       {/* Main Content Area */}
       <div className="absolute inset-0">
         {renderContent()}
