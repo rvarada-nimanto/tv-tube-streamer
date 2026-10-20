@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { extractYouTubeId, youtubeEmbedUrl } from "@/lib/youtube";
+import { checkUpload, UPLOAD_RULES, type UploadKind } from "@/lib/uploads";
 import { 
   ArrowLeft, 
   Upload, 
@@ -126,28 +127,9 @@ export default function StoreContent() {
     // Reset so picking the same file again still fires onChange
     e.target.value = "";
     if (file) {
-      // Validate file type
-      const validTypes = contentType === "image" 
-        ? ["image/jpeg", "image/png", "image/gif", "image/webp"]
-        : ["video/mp4", "video/webm", "video/quicktime"];
-      
-      if (!validTypes.includes(file.type)) {
-        toast({
-          title: "Invalid file type",
-          description: `Please select a valid ${contentType} file`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Validate file size (max 50MB for videos, 10MB for images)
-      const maxSize = contentType === "video" ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
-      if (file.size > maxSize) {
-        toast({
-          title: "File too large",
-          description: `Maximum file size is ${contentType === "video" ? "50MB" : "10MB"}`,
-          variant: "destructive",
-        });
+      const problem = checkUpload(file, contentType as UploadKind);
+      if (problem) {
+        toast({ ...problem, variant: "destructive" });
         return;
       }
 
@@ -460,7 +442,7 @@ export default function StoreContent() {
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground mt-1">
-                      {contentType === "image" ? "JPG, PNG, GIF, WebP (max 10MB)" : "MP4, WebM, MOV (max 50MB)"}
+                      {UPLOAD_RULES[contentType as UploadKind].hint}
                     </p>
                   </label>
                 </div>
