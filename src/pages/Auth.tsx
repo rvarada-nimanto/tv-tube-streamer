@@ -239,8 +239,13 @@ export default function Auth() {
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      minLength={6}
+                      aria-describedby="signup-password-hint"
                       required
                     />
+                    <p id="signup-password-hint" className="text-xs text-muted-foreground">
+                      At least 6 characters
+                    </p>
                   </div>
                   <Button 
                     type="submit" 
