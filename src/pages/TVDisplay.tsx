@@ -244,7 +244,7 @@ export default function TVDisplay() {
 
     if (contentType === "youtube") {
       // Extract video ID from YouTube URL
-      const videoId = contentUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+      const videoId = contentUrl.match(/(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/)?.[1];
       
       if (videoId) {
         return (
