@@ -140,6 +140,18 @@ export default function TVDisplay() {
           fetchContent();
         }
       )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "store_default_content",
+          filter: `store_id=eq.${storeId}`,
+        },
+        () => {
+          fetchContent();
+        }
+      )
       .subscribe();
 
     return () => {
