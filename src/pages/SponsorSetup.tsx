@@ -66,7 +66,9 @@ export default function SponsorSetup() {
       user_id: user.id,
       company_name: formData.companyName,
       company_type: formData.companyType,
-      website: formData.website || null,
+      website: formData.website.trim()
+        ? (/^https?:\/\//i.test(formData.website.trim()) ? "" : "https://") + formData.website.trim()
+        : null,
       address: formData.address || null,
       city: formData.city || null,
       state: formData.state || null,
