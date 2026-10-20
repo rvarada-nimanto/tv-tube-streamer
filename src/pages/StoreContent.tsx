@@ -62,6 +62,7 @@ export default function StoreContent() {
   const [title, setTitle] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [dragging, setDragging] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -133,19 +134,28 @@ export default function StoreContent() {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
   }, [previewUrl]);
 
+  const acceptFile = (file: File) => {
+    const problem = checkUpload(file, contentType as UploadKind);
+    if (problem) {
+      toast({ ...problem, variant: "destructive" });
+      return;
+    }
+
+    setSelectedFile(file);
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     // Reset so picking the same file again still fires onChange
     e.target.value = "";
-    if (file) {
-      const problem = checkUpload(file, contentType as UploadKind);
-      if (problem) {
-        toast({ ...problem, variant: "destructive" });
-        return;
-      }
+    if (file) acceptFile(file);
+  };
 
-      setSelectedFile(file);
-    }
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) acceptFile(file);
   };
 
   // One past the highest position; the count can collide after a delete
@@ -448,7 +458,15 @@ export default function StoreContent() {
             ) : (
               <div className="space-y-2">
                 <Label>Upload File</Label>
-                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                <div
+                  className={`border-2 border-dashed rounded-lg p-6 text-center ${dragging ? "border-primary bg-primary/5" : "border-border"}`}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragging(true);
+                  }}
+                  onDragLeave={() => setDragging(false)}
+                  onDrop={handleDrop}
+                >
                   <input
                     type="file"
                     id="file-upload"
@@ -465,7 +483,7 @@ export default function StoreContent() {
                       </>
                     ) : (
                       <p className="text-sm text-muted-foreground">
-                        Click to upload {contentType === "image" ? "an image" : "a video"}
+                        Click or drop to upload {contentType === "image" ? "an image" : "a video"}
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground mt-1">
