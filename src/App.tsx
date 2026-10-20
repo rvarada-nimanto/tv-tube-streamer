@@ -1,3 +1,5 @@
+import { lazy, Suspense } from "react";
+import { Loader2 } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,16 +8,16 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 // Pages
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
-import TVLogin from "./pages/TVLogin";
-import TVDisplay from "./pages/TVDisplay";
-import StoreSetup from "./pages/StoreSetup";
-import StoreContent from "./pages/StoreContent";
-import StoreSchedule from "./pages/StoreSchedule";
-import SponsorSetup from "./pages/SponsorSetup";
-import NotFound from "./pages/NotFound";
+const Index = lazy(() => import("./pages/Index"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const TVLogin = lazy(() => import("./pages/TVLogin"));
+const TVDisplay = lazy(() => import("./pages/TVDisplay"));
+const StoreSetup = lazy(() => import("./pages/StoreSetup"));
+const StoreContent = lazy(() => import("./pages/StoreContent"));
+const StoreSchedule = lazy(() => import("./pages/StoreSchedule"));
+const SponsorSetup = lazy(() => import("./pages/SponsorSetup"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
@@ -26,6 +28,13 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <Suspense
+            fallback={
+              <div className="min-h-screen flex items-center justify-center bg-background">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            }
+          >
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
@@ -49,6 +58,7 @@ const App = () => (
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
