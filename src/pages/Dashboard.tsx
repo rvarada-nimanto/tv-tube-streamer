@@ -118,7 +118,7 @@ export default function Dashboard() {
             <span className="text-sm text-muted-foreground">
               Welcome, {profile?.first_name || user?.email}
             </span>
-            <Button variant="ghost" size="icon" onClick={handleSignOut}>
+            <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sign out">
               <LogOut className="w-5 h-5" />
             </Button>
           </div>
