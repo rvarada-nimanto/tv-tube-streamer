@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ const AD_CATEGORIES = [
 export default function StoreSetup() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  useDocumentTitle("Set up your store");
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 

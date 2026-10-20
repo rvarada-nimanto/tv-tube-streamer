@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,6 +42,7 @@ interface TimeSlot {
 
 const StoreSchedule = () => {
   const navigate = useNavigate();
+  useDocumentTitle("Ad schedule");
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   

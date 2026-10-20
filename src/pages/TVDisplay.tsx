@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Tv, Loader2, Clock, Calendar, Play } from "lucide-react";
@@ -41,6 +42,7 @@ export default function TVDisplay() {
   const [defaultContentIndex, setDefaultContentIndex] = useState(-1);
   const [noStore, setNoStore] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  useDocumentTitle(storeName || "TV display");
 
   // Redirect if not authenticated
   useEffect(() => {
