@@ -152,7 +152,7 @@ export default function StoreSetup() {
                   onValueChange={(v) => setFormData({ ...formData, storeType: v })}
                   required
                 >
-                  <SelectTrigger>
+                  <SelectTrigger id="storeType">
                     <SelectValue placeholder="Select store type" />
                   </SelectTrigger>
                   <SelectContent>

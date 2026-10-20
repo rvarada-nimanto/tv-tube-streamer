@@ -192,7 +192,7 @@ export default function Auth() {
                   <div className="space-y-2">
                     <Label htmlFor="userType">I am a</Label>
                     <Select value={userType} onValueChange={(v) => setUserType(v as "store" | "ad_sponsor")}>
-                      <SelectTrigger>
+                      <SelectTrigger id="userType">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
