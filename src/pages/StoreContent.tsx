@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useAuth } from "@/contexts/AuthContext";
@@ -124,6 +124,14 @@ export default function StoreContent() {
   useEffect(() => {
     setSelectedFile(null);
   }, [contentType]);
+
+  const previewUrl = useMemo(
+    () => (selectedFile?.type.startsWith("image/") ? URL.createObjectURL(selectedFile) : null),
+    [selectedFile]
+  );
+  useEffect(() => () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -451,7 +459,10 @@ export default function StoreContent() {
                   <label htmlFor="file-upload" className="block cursor-pointer rounded-md peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2">
                     <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                     {selectedFile ? (
-                      <p className="text-sm font-medium">{selectedFile.name}</p>
+                      <>
+                        {previewUrl && <img src={previewUrl} alt="" className="mx-auto mb-2 max-h-32 rounded-md" />}
+                        <p className="text-sm font-medium">{selectedFile.name}</p>
+                      </>
                     ) : (
                       <p className="text-sm text-muted-foreground">
                         Click to upload {contentType === "image" ? "an image" : "a video"}
