@@ -78,7 +78,9 @@ export default function SponsorSetup() {
     if (error) {
       toast({
         title: "Error",
-        description: "Failed to create company profile. Please try again.",
+        description: error.code === "23505"
+          ? "This account already has a company profile."
+          : `Failed to create company profile: ${error.message}`,
         variant: "destructive",
       });
       return;
