@@ -305,15 +305,15 @@ export default function Auth() {
                   >
                     {isLoading ? "Creating account..." : "Create Account"}
                   </Button>
+                  <p className="text-center text-xs text-muted-foreground">
+                    By signing up, you agree to our Terms of Service and Privacy Policy.
+                  </p>
                 </form>
               </TabsContent>
             </CardContent>
           </Tabs>
         </Card>
 
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          By signing up, you agree to our Terms of Service and Privacy Policy.
-        </p>
       </div>
     </div>
   );
