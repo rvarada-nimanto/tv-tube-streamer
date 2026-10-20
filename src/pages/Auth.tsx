@@ -77,7 +77,7 @@ export default function Auth() {
     if (!validateForm()) return;
 
     setIsLoading(true);
-    const { error } = await signUp(email, password, {
+    const { error, session } = await signUp(email, password, {
       first_name: firstName,
       last_name: lastName,
       user_type: userType,
@@ -101,7 +101,9 @@ export default function Auth() {
     } else {
       toast({
         title: "Account Created!",
-        description: "You can now sign in to your account.",
+        description: session
+          ? "You're signed in."
+          : "Check your e-mail to confirm your account, then sign in.",
       });
     }
   };
