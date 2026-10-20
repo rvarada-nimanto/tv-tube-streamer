@@ -43,6 +43,19 @@ export default function SponsorSetup() {
     }
   }, [user, authLoading, navigate]);
 
+  // Each account has one company profile; setting it up again can only fail
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("ad_sponsors")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) navigate("/dashboard", { replace: true });
+      });
+  }, [user, navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
