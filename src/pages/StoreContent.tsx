@@ -153,6 +153,10 @@ export default function StoreContent() {
     }
   };
 
+  // One past the highest position; the count can collide after a delete
+  const nextDisplayOrder = () =>
+    contentItems.reduce((max, item) => Math.max(max, item.display_order ?? -1), -1) + 1;
+
   const handleUpload = async () => {
     if (!store || !user) return;
 
@@ -185,7 +189,7 @@ export default function StoreContent() {
           title: title || "YouTube Video",
           content_type: "youtube",
           content_url: youtubeEmbedUrl(videoId),
-          display_order: contentItems.length,
+          display_order: nextDisplayOrder(),
         });
 
       if (error) {
@@ -245,7 +249,7 @@ export default function StoreContent() {
         title: title || selectedFile.name,
         content_type: contentType,
         content_url: urlData.publicUrl,
-        display_order: contentItems.length,
+        display_order: nextDisplayOrder(),
       });
 
     if (insertError) {
