@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { format, parse } from "date-fns";
 import { slotTimes } from "@/lib/schedule";
-import { Clock, Tv, ArrowLeft, Play, CheckCircle } from "lucide-react";
+import { Clock, Tv, ArrowLeft, Play, CheckCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Store {
@@ -50,6 +50,7 @@ const StoreSchedule = () => {
   const [store, setStore] = useState<Store | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [scheduledAds, setScheduledAds] = useState<ScheduledAd[]>([]);
+  const [loadingAds, setLoadingAds] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -104,6 +105,7 @@ const StoreSchedule = () => {
     let cancelled = false;
 
     const fetchScheduledAds = async () => {
+      setLoadingAds(true);
       const dateStr = format(selectedDate, "yyyy-MM-dd");
       const { data, error } = await supabase
         .from("ad_schedule")
@@ -124,6 +126,7 @@ const StoreSchedule = () => {
         .order("slot_time");
 
       if (cancelled) return;
+      setLoadingAds(false);
 
       if (error) {
         console.error("Error fetching scheduled ads:", error);
@@ -350,7 +353,11 @@ const StoreSchedule = () => {
             <CardDescription>All ads scheduled for the selected date</CardDescription>
           </CardHeader>
           <CardContent>
-            {scheduledAds.length === 0 ? (
+            {loadingAds ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : scheduledAds.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Tv className="h-10 w-10 mx-auto mb-3 opacity-50" />
                 <p>No ads scheduled for this date</p>
