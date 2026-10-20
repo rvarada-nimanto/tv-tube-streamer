@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -164,6 +164,24 @@ export default function TVDisplay() {
     };
   }, [storeId, today]);
 
+  // Play default content in rotation
+  const playDefaultContent = useCallback(() => {
+    if (defaultContent.length === 0) {
+      setCurrentContent(null);
+      return;
+    }
+
+    const nextIndex = (defaultContentIndex + 1) % defaultContent.length;
+    setDefaultContentIndex(nextIndex);
+    setCurrentContent(defaultContent[nextIndex]);
+  }, [defaultContent, defaultContentIndex]);
+
+  // Timers started earlier call the latest version
+  const playDefaultContentRef = useRef(playDefaultContent);
+  useEffect(() => {
+    playDefaultContentRef.current = playDefaultContent;
+  }, [playDefaultContent]);
+
   // Check for scheduled ads and play them
   const checkAndPlayAd = useCallback(() => {
     const now = new Date();
@@ -195,22 +213,10 @@ export default function TVDisplay() {
       // Switch back to default content after ad duration
       setTimeout(() => {
         setIsPlaying(false);
-        playDefaultContent();
+        playDefaultContentRef.current();
       }, (scheduledAd.ad.duration_seconds || 15) * 1000);
     }
   }, [scheduledAds]);
-
-  // Play default content in rotation
-  const playDefaultContent = useCallback(() => {
-    if (defaultContent.length === 0) {
-      setCurrentContent(null);
-      return;
-    }
-
-    const nextIndex = (defaultContentIndex + 1) % defaultContent.length;
-    setDefaultContentIndex(nextIndex);
-    setCurrentContent(defaultContent[nextIndex]);
-  }, [defaultContent, defaultContentIndex]);
 
   // Check for ads every minute
   useEffect(() => {
