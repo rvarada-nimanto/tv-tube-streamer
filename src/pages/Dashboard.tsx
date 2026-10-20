@@ -34,6 +34,10 @@ interface AdSponsor {
   company_name: string;
 }
 
+function ComingSoon() {
+  return <p className="text-xs font-medium uppercase tracking-wide opacity-80">Coming soon</p>;
+}
+
 export default function Dashboard() {
   const { user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -191,13 +195,14 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/store/requests")}>
+              <Card className="opacity-60" aria-disabled="true">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Megaphone className="w-5 h-5 text-accent" />
                     Ad Requests
                   </CardTitle>
                   <CardDescription>Approve or reject ad placements</CardDescription>
+                  <ComingSoon />
                 </CardHeader>
                 <CardContent>
                   <p className="text-2xl font-bold">0</p>
@@ -205,13 +210,14 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/store/earnings")}>
+              <Card className="opacity-60" aria-disabled="true">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <DollarSign className="w-5 h-5 text-success" />
                     Earnings
                   </CardTitle>
                   <CardDescription>Track your ad revenue</CardDescription>
+                  <ComingSoon />
                 </CardHeader>
                 <CardContent>
                   <p className="text-2xl font-bold">$0.00</p>
@@ -233,13 +239,14 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/store/settings")}>
+              <Card className="opacity-60" aria-disabled="true">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Settings className="w-5 h-5 text-muted-foreground" />
                     Store Settings
                   </CardTitle>
                   <CardDescription>Update store details and preferences</CardDescription>
+                  <ComingSoon />
                 </CardHeader>
               </Card>
 
@@ -258,23 +265,25 @@ export default function Dashboard() {
           {/* Ad Sponsor Cards */}
           {isSponsor && (
             <>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer gradient-primary text-primary-foreground" onClick={() => navigate("/sponsor/post-ad")}>
+              <Card className="opacity-60 gradient-primary text-primary-foreground" aria-disabled="true">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg text-primary-foreground">
                     <Plus className="w-5 h-5" />
                     Post New Ad
                   </CardTitle>
                   <CardDescription className="text-primary-foreground/80">Create a new ad campaign</CardDescription>
+                  <ComingSoon />
                 </CardHeader>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/sponsor/campaigns")}>
+              <Card className="opacity-60" aria-disabled="true">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Megaphone className="w-5 h-5 text-primary" />
                     My Campaigns
                   </CardTitle>
                   <CardDescription>View and manage your ad campaigns</CardDescription>
+                  <ComingSoon />
                 </CardHeader>
                 <CardContent>
                   <p className="text-2xl font-bold">0</p>
@@ -282,13 +291,14 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/sponsor/analytics")}>
+              <Card className="opacity-60" aria-disabled="true">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <TrendingUp className="w-5 h-5 text-accent" />
                     Analytics
                   </CardTitle>
                   <CardDescription>Track ad performance and reach</CardDescription>
+                  <ComingSoon />
                 </CardHeader>
                 <CardContent>
                   <p className="text-2xl font-bold">0</p>
@@ -296,13 +306,14 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/sponsor/billing")}>
+              <Card className="opacity-60" aria-disabled="true">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <DollarSign className="w-5 h-5 text-success" />
                     Billing
                   </CardTitle>
                   <CardDescription>Manage payments and invoices</CardDescription>
+                  <ComingSoon />
                 </CardHeader>
                 <CardContent>
                   <p className="text-2xl font-bold">$0.00</p>
@@ -310,13 +321,14 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/sponsor/settings")}>
+              <Card className="opacity-60" aria-disabled="true">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Settings className="w-5 h-5 text-muted-foreground" />
                     Company Settings
                   </CardTitle>
                   <CardDescription>Update company details</CardDescription>
+                  <ComingSoon />
                 </CardHeader>
               </Card>
             </>
