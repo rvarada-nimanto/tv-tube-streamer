@@ -38,6 +38,7 @@ export default function TVDisplay() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [defaultContentIndex, setDefaultContentIndex] = useState(-1);
+  const [noStore, setNoStore] = useState(false);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -74,6 +75,8 @@ export default function TVDisplay() {
       if (store) {
         setStoreId(store.id);
         setStoreName(store.store_name);
+      } else {
+        setNoStore(true);
       }
     };
 
@@ -218,9 +221,13 @@ export default function TVDisplay() {
           <div className="animate-pulse-glow p-8 rounded-full bg-secondary/30">
             <Tv className="w-32 h-32 text-primary" />
           </div>
-          <h2 className="tv-heading mt-8 text-muted-foreground">No Content Scheduled</h2>
+          <h2 className="tv-heading mt-8 text-muted-foreground">
+            {noStore ? "No Store on This Account" : "No Content Scheduled"}
+          </h2>
           <p className="tv-body text-muted-foreground/60 mt-4">
-            Add content in your store dashboard
+            {noStore
+              ? "Sign in with a store owner account, or set up your store in the dashboard"
+              : "Add content in your store dashboard"}
           </p>
         </div>
       );
