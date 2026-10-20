@@ -394,6 +394,8 @@ const StoreSchedule = () => {
                       <Badge variant="secondary">{ad.ads?.category}</Badge>
                       {ad.played_at ? (
                         <Badge className="bg-green-500/20 text-green-600 border-green-500/30">Played</Badge>
+                      ) : parse(ad.slot_time, "HH:mm:ss", selectedDate) < new Date() ? (
+                        <Badge variant="outline" className="text-destructive border-destructive/30">Missed</Badge>
                       ) : (
                         <Badge variant="outline">Pending</Badge>
                       )}
