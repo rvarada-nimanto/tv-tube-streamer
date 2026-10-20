@@ -331,9 +331,9 @@ export default function StoreContent() {
           <CardContent className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Content Type</Label>
+                <Label htmlFor="content-type">Content Type</Label>
                 <Select value={contentType} onValueChange={setContentType}>
-                  <SelectTrigger>
+                  <SelectTrigger id="content-type">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -345,8 +345,9 @@ export default function StoreContent() {
               </div>
 
               <div className="space-y-2">
-                <Label>Title (optional)</Label>
+                <Label htmlFor="content-title">Title (optional)</Label>
                 <Input 
+                  id="content-title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Content title"
@@ -356,8 +357,9 @@ export default function StoreContent() {
 
             {contentType === "youtube" ? (
               <div className="space-y-2">
-                <Label>YouTube URL</Label>
+                <Label htmlFor="youtube-url">YouTube URL</Label>
                 <Input 
+                  id="youtube-url"
                   value={youtubeUrl}
                   onChange={(e) => setYoutubeUrl(e.target.value)}
                   placeholder="https://www.youtube.com/watch?v=..."
