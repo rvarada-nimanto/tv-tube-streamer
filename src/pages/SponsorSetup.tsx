@@ -69,7 +69,7 @@ export default function SponsorSetup() {
       description: "You can now start posting ads on store TVs.",
     });
 
-    navigate("/");
+    navigate("/dashboard");
   };
 
   return (
@@ -78,7 +78,7 @@ export default function SponsorSetup() {
         <Button
           variant="ghost"
           className="mb-6"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/dashboard")}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Dashboard

@@ -100,7 +100,7 @@ export default function StoreSetup() {
       description: "Your store is now set up and ready to receive ads.",
     });
 
-    navigate("/");
+    navigate("/dashboard");
   };
 
   return (
@@ -109,7 +109,7 @@ export default function StoreSetup() {
         <Button
           variant="ghost"
           className="mb-6"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/dashboard")}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Dashboard
