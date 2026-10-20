@@ -23,7 +23,8 @@ import {
   Image as ImageIcon,
   Video,
   Link as LinkIcon,
-  GripVertical,
+  ChevronUp,
+  ChevronDown,
   Plus
 } from "lucide-react";
 
@@ -281,6 +282,35 @@ export default function StoreContent() {
     if (data) setContentItems(data);
   };
 
+  const moveItem = async (index: number, direction: -1 | 1) => {
+    const target = index + direction;
+    if (target < 0 || target >= contentItems.length) return;
+
+    const reordered = [...contentItems];
+    [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+    setContentItems(reordered);
+
+    // Save each item's list position as its display order
+    const results = await Promise.all(
+      reordered
+        .map((item, position) => ({ item, position }))
+        .filter(({ item, position }) => item.display_order !== position)
+        .map(({ item, position }) =>
+          supabase.from("store_default_content").update({ display_order: position }).eq("id", item.id)
+        )
+    );
+
+    const failed = results.find((result) => result.error);
+    if (failed) {
+      toast({
+        title: "Couldn't save the new order",
+        description: failed.error?.message,
+        variant: "destructive",
+      });
+    }
+    refreshContent();
+  };
+
   const handleDelete = async (item: ContentItem) => {
     if (!confirm(`Delete "${item.title || "this content"}"? This can't be undone.`)) return;
 
@@ -451,12 +481,33 @@ export default function StoreContent() {
               </div>
             ) : (
               <div className="space-y-3">
-                {contentItems.map((item) => (
+                {contentItems.map((item, index) => (
                   <div 
                     key={item.id} 
                     className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg"
                   >
-                    <GripVertical className="w-5 h-5 text-muted-foreground cursor-grab" />
+                    <div className="flex flex-col">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => moveItem(index, -1)}
+                        disabled={index === 0}
+                        aria-label={`Move ${item.title || "item"} up`}
+                      >
+                        <ChevronUp className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => moveItem(index, 1)}
+                        disabled={index === contentItems.length - 1}
+                        aria-label={`Move ${item.title || "item"} down`}
+                      >
+                        <ChevronDown className="w-4 h-4" />
+                      </Button>
+                    </div>
                     
                     {/* Thumbnail */}
                     <div className="w-20 h-12 bg-background rounded overflow-hidden flex-shrink-0">
