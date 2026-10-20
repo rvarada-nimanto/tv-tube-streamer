@@ -188,10 +188,12 @@ export default function TVDisplay() {
     const now = new Date();
     const currentTimeStr = now.toTimeString().slice(0, 5);
 
-    // Find ad scheduled for current time (within 1 minute window)
+    // Find an unplayed ad whose slot started in the last 2 minutes, so a late
+    // or restarted check still plays it
+    const graceStartStr = new Date(now.getTime() - 2 * 60 * 1000).toTimeString().slice(0, 5);
     const scheduledAd = scheduledAds.find((ad) => {
       const adTime = ad.slot_time.slice(0, 5);
-      return adTime === currentTimeStr;
+      return adTime <= currentTimeStr && adTime >= graceStartStr;
     });
 
     if (scheduledAd && scheduledAd.ad) {
