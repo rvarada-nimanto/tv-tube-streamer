@@ -8,7 +8,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { format, addMinutes, parse } from "date-fns";
+import { format, parse } from "date-fns";
+import { slotTimes } from "@/lib/schedule";
 import { Clock, Tv, ArrowLeft, Play, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -142,33 +143,11 @@ const StoreSchedule = () => {
 
   const generateTimeSlots = (): TimeSlot[] => {
     if (!store) return [];
-    
-    const slots: TimeSlot[] = [];
-    const slotDuration = 15; // 15-minute slots
-    
-    const openTime = parse(store.opening_time, "HH:mm:ss", new Date());
-    let closeTime = parse(store.closing_time, "HH:mm:ss", new Date());
-    // Stores open past midnight close on the next day
-    if (closeTime <= openTime) {
-      closeTime = addMinutes(closeTime, 24 * 60);
-    }
-    
-    let currentTime = openTime;
-    
-    while (currentTime < closeTime) {
-      const timeStr = format(currentTime, "HH:mm:ss");
-      const bookedAd = scheduledAds.find(ad => ad.slot_time === timeStr);
-      
-      slots.push({
-        time: timeStr,
-        isBooked: !!bookedAd,
-        ad: bookedAd,
-      });
-      
-      currentTime = addMinutes(currentTime, slotDuration);
-    }
-    
-    return slots;
+
+    return slotTimes(store.opening_time, store.closing_time).map((time) => {
+      const bookedAd = scheduledAds.find((ad) => ad.slot_time === time);
+      return { time, isBooked: !!bookedAd, ad: bookedAd };
+    });
   };
 
   const timeSlots = generateTimeSlots();
