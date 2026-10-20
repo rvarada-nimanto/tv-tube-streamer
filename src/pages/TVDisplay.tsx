@@ -224,9 +224,7 @@ export default function TVDisplay() {
 
       // Mark as played
       supabase
-        .from("ad_schedule")
-        .update({ played_at: now.toISOString() })
-        .eq("id", scheduledAd.id)
+        .rpc("mark_ad_played", { _schedule_id: scheduledAd.id })
         .then(({ error }) => {
           if (error) {
             console.error("Error marking ad as played:", error);
