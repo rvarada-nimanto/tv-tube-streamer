@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -45,6 +46,7 @@ export default function Dashboard() {
   const [store, setStore] = useState<Store | null>(null);
   const [sponsor, setSponsor] = useState<AdSponsor | null>(null);
   const [loading, setLoading] = useState(true);
+  const [adsToday, setAdsToday] = useState(0);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -74,6 +76,15 @@ export default function Dashboard() {
             .eq("user_id", user.id)
             .maybeSingle();
           setStore(storeData);
+
+          if (storeData) {
+            const { count } = await supabase
+              .from("ad_schedule")
+              .select("id", { count: "exact", head: true })
+              .eq("store_id", storeData.id)
+              .eq("scheduled_date", format(new Date(), "yyyy-MM-dd"));
+            setAdsToday(count ?? 0);
+          }
         } else if (profileData.user_type === "ad_sponsor") {
           const { data: sponsorData } = await supabase
             .from("ad_sponsors")
@@ -191,7 +202,7 @@ export default function Dashboard() {
                   <CardDescription>View and manage your ad slots</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold">0</p>
+                  <p className="text-2xl font-bold">{adsToday}</p>
                   <p className="text-sm text-muted-foreground">Ads scheduled today</p>
                 </CardContent>
               </Card>
