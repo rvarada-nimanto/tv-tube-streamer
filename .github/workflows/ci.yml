@@ -16,7 +16,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Typecheck
-        run: npx tsc -p tsconfig.app.json --noEmit
+        run: npm run typecheck
       - name: Lint
         run: npm run lint
       - name: Build
