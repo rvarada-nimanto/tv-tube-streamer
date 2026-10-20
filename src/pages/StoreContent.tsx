@@ -306,7 +306,7 @@ export default function StoreContent() {
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} aria-label="Back to dashboard">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
@@ -466,6 +466,7 @@ export default function StoreContent() {
                       variant="ghost" 
                       size="icon"
                       onClick={() => handleDelete(item)}
+                      aria-label={`Delete ${item.title || "content"}`}
                       className="text-destructive hover:text-destructive"
                     >
                       <Trash2 className="w-4 h-4" />

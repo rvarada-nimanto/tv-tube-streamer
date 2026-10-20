@@ -174,7 +174,7 @@ const StoreSchedule = () => {
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} aria-label="Back to dashboard">
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
