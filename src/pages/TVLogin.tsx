@@ -58,6 +58,8 @@ export default function TVLogin() {
             <Input
               type="email"
               placeholder="Store Email"
+              aria-label="Store email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="h-16 text-xl bg-secondary/50 border-border/50 text-center placeholder:text-muted-foreground"
@@ -66,6 +68,8 @@ export default function TVLogin() {
             <Input
               type="password"
               placeholder="Password"
+              aria-label="Password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="h-16 text-xl bg-secondary/50 border-border/50 text-center placeholder:text-muted-foreground"
