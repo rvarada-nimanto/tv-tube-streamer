@@ -221,7 +221,8 @@ export default function StoreContent() {
 
     setUploading(true);
 
-    const fileExt = selectedFile.name.split(".").pop();
+    // From the checked MIME type, so files without an extension still get one
+    const fileExt = selectedFile.type.split("/")[1]?.replace("quicktime", "mov") || "bin";
     const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
     const { error: uploadError } = await supabase.storage
