@@ -127,7 +127,7 @@ export default function TVDisplay() {
 
     // Set up realtime subscription for schedule updates
     const channel = supabase
-      .channel("ad-schedule-changes")
+      .channel(`ad-schedule-${storeId}`)
       .on(
         "postgres_changes",
         {
