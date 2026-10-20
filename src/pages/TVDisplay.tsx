@@ -40,6 +40,7 @@ export default function TVDisplay() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [defaultContentIndex, setDefaultContentIndex] = useState(-1);
   const [noStore, setNoStore] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -47,6 +48,17 @@ export default function TVDisplay() {
       navigate("/tv/login");
     }
   }, [user, authLoading, navigate]);
+
+  // Track the connection for the offline badge
+  useEffect(() => {
+    const update = () => setIsOnline(navigator.onLine);
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
+    return () => {
+      window.removeEventListener("online", update);
+      window.removeEventListener("offline", update);
+    };
+  }, []);
 
   // Update clock
   useEffect(() => {
@@ -389,6 +401,13 @@ export default function TVDisplay() {
           </div>
         </div>
       </div>
+
+      {!isOnline && (
+        <div className="absolute bottom-6 left-6 glass-card px-4 py-3 flex items-center gap-3">
+          <div className="w-3 h-3 rounded-full bg-destructive" />
+          <span className="text-sm">Offline: new bookings will appear when the connection is back</span>
+        </div>
+      )}
 
       {/* Upcoming Ads Indicator */}
       {scheduledAds.length > 0 && (
