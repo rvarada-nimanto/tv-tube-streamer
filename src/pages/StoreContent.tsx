@@ -92,13 +92,19 @@ export default function StoreContent() {
       setStore(storeData);
 
       // Fetch content items
-      const { data: contentData } = await supabase
+      const { data: contentData, error: contentError } = await supabase
         .from("store_default_content")
         .select("*")
         .eq("store_id", storeData.id)
         .order("display_order", { ascending: true });
 
-      if (contentData) {
+      if (contentError) {
+        toast({
+          title: "Couldn't load your content",
+          description: contentError.message,
+          variant: "destructive",
+        });
+      } else if (contentData) {
         setContentItems(contentData);
       }
 
