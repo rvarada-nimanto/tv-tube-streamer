@@ -8,6 +8,20 @@ AdStation puts sponsor ads and a store's own content on the TV screens inside lo
 - **Ad sponsors** sign up and set up their company.
 - **The TV** signs in at `/tv/login` with the store's account and plays the store's default content in rotation, switching to scheduled ads at their slot time.
 
+## Setting up a store TV
+
+1. Use any screen with a modern browser: a smart TV browser, a Fire TV / Android TV stick, a Chromecast with Google TV, or a small PC.
+2. Open `<your site>/tv/login` and sign in with the **store owner's** account.
+3. Optional: in Chrome or on Android, choose **Install app** / **Add to Home screen**. AdStation then opens straight on the TV display, full screen.
+4. Otherwise, double-click the screen (or press OK twice on an air remote) to go fullscreen.
+5. The display keeps the screen awake by itself where the device allows it. Also turn off the TV's own sleep timer.
+
+On the screen:
+
+- **"N ads scheduled today · next at …"** (bottom right): today's remaining sponsor ads.
+- **"Offline"** (bottom left): the connection dropped. Content keeps playing; new bookings arrive when it's back.
+- **"No Store on This Account"**: you signed in with a sponsor account or before finishing store setup. Use **Sign out**.
+
 ## Tech stack
 
 - Vite, React and TypeScript
