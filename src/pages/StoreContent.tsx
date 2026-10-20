@@ -463,7 +463,8 @@ export default function StoreContent() {
                       {item.content_type === "image" ? (
                         <img 
                           src={item.content_url} 
-                          alt={item.title || "Content"} 
+                          alt={item.title || "Content"}
+                          loading="lazy"
                           className="w-full h-full object-cover"
                         />
                       ) : item.content_type === "youtube" && extractYouTubeId(item.content_url) ? (
