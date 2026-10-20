@@ -72,9 +72,19 @@ export default function StoreContent() {
         .from("stores")
         .select("id, store_name")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
-      if (storeError || !storeData) {
+      if (storeError) {
+        toast({
+          title: "Couldn't load your store",
+          description: storeError.message,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (!storeData) {
         navigate("/store/setup");
         return;
       }
@@ -96,7 +106,7 @@ export default function StoreContent() {
     };
 
     fetchData();
-  }, [user, navigate]);
+  }, [user, navigate, toast]);
 
   // A file picked for one type must not be uploaded under another
   useEffect(() => {
