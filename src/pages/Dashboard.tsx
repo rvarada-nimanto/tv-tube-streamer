@@ -181,7 +181,8 @@ export default function Dashboard() {
           {/* Store Owner Cards */}
           {isStore && (
             <>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/store/schedule")}>
+              <Link to="/store/schedule" className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <Card className="h-full hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Calendar className="w-5 h-5 text-primary" />
@@ -194,6 +195,7 @@ export default function Dashboard() {
                   <p className="text-sm text-muted-foreground">Ads scheduled today</p>
                 </CardContent>
               </Card>
+              </Link>
 
               <Card className="opacity-60" aria-disabled="true">
                 <CardHeader>
@@ -225,7 +227,8 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/store/content")}>
+              <Link to="/store/content" className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <Card className="h-full hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Tv className="w-5 h-5 text-primary" />
@@ -238,6 +241,7 @@ export default function Dashboard() {
                   <p className="text-sm text-muted-foreground">Content items</p>
                 </CardContent>
               </Card>
+              </Link>
 
               <Card className="opacity-60" aria-disabled="true">
                 <CardHeader>
@@ -250,7 +254,8 @@ export default function Dashboard() {
                 </CardHeader>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer gradient-primary text-primary-foreground" onClick={() => navigate("/tv")}>
+              <Link to="/tv" className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <Card className="h-full hover:shadow-lg transition-shadow gradient-primary text-primary-foreground">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg text-primary-foreground">
                     <Tv className="w-5 h-5" />
@@ -259,6 +264,7 @@ export default function Dashboard() {
                   <CardDescription className="text-primary-foreground/80">Open the TV display mode</CardDescription>
                 </CardHeader>
               </Card>
+              </Link>
             </>
           )}
 
