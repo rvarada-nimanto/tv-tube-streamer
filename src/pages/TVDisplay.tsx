@@ -162,7 +162,10 @@ export default function TVDisplay() {
         .from("ad_schedule")
         .update({ played_at: now.toISOString() })
         .eq("id", scheduledAd.id)
-        .then(() => {
+        .then(({ error }) => {
+          if (error) {
+            console.error("Error marking ad as played:", error);
+          }
           // Remove from local state
           setScheduledAds((prev) => prev.filter((a) => a.id !== scheduledAd.id));
         });
