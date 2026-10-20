@@ -274,6 +274,7 @@ export default function TVDisplay() {
           loop={!isPlaying}
           className="w-full h-full object-cover"
           onEnded={() => !isPlaying && playDefaultContent()}
+          onError={() => !isPlaying && playDefaultContent()}
         />
       );
     }
