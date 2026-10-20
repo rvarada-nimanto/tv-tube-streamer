@@ -329,7 +329,8 @@ const StoreSchedule = () => {
                               </div>
                               {slot.ad.played_at && (
                                 <p className="text-xs text-green-600">
-                                  ✓ Played at {format(new Date(slot.ad.played_at), "h:mm a")}
+                                  <CheckCircle className="inline h-3 w-3 mr-1" />
+                                  Played at {format(new Date(slot.ad.played_at), "h:mm a")}
                                 </p>
                               )}
                             </div>
