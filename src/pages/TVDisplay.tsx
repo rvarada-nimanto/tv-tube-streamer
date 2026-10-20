@@ -154,7 +154,12 @@ export default function TVDisplay() {
       )
       .subscribe();
 
+    // Catch up on anything missed while the TV was offline
+    const handleOnline = () => fetchContent();
+    window.addEventListener("online", handleOnline);
+
     return () => {
+      window.removeEventListener("online", handleOnline);
       supabase.removeChannel(channel);
     };
   }, [storeId, today]);
