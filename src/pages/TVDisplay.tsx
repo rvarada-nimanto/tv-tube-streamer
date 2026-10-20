@@ -53,6 +53,27 @@ export default function TVDisplay() {
     return () => clearInterval(timer);
   }, []);
 
+  // Keep the screen from sleeping while the display runs
+  useEffect(() => {
+    let lock: WakeLockSentinel | undefined;
+    const request = async () => {
+      try {
+        lock = await navigator.wakeLock?.request("screen");
+      } catch {
+        // Not supported or not allowed; the device's own sleep settings apply
+      }
+    };
+    const onVisible = () => {
+      if (document.visibilityState === "visible") request();
+    };
+    request();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      lock?.release();
+    };
+  }, []);
+
   // Local date, so the evening's ads are not looked up under tomorrow's UTC date
   const today = format(currentTime, "yyyy-MM-dd");
 
