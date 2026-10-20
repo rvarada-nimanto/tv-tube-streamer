@@ -178,6 +178,7 @@ export default function TVDisplay() {
 
   // Timers started earlier call the latest version
   const playDefaultContentRef = useRef(playDefaultContent);
+  const adTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => {
     playDefaultContentRef.current = playDefaultContent;
   }, [playDefaultContent]);
@@ -211,12 +212,15 @@ export default function TVDisplay() {
         });
 
       // Switch back to default content after ad duration
-      setTimeout(() => {
+      clearTimeout(adTimeoutRef.current);
+      adTimeoutRef.current = setTimeout(() => {
         setIsPlaying(false);
         playDefaultContentRef.current();
       }, (scheduledAd.ad.duration_seconds || 15) * 1000);
     }
   }, [scheduledAds]);
+
+  useEffect(() => () => clearTimeout(adTimeoutRef.current), []);
 
   // Check for ads every minute
   useEffect(() => {
