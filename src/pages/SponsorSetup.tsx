@@ -121,7 +121,7 @@ export default function SponsorSetup() {
                   onValueChange={(v) => setFormData({ ...formData, companyType: v })}
                   required
                 >
-                  <SelectTrigger>
+                  <SelectTrigger id="companyType">
                     <SelectValue placeholder="Select company type" />
                   </SelectTrigger>
                   <SelectContent>
