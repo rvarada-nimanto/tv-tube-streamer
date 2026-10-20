@@ -64,15 +64,15 @@ export default function SponsorSetup() {
 
     const { error } = await supabase.from("ad_sponsors").insert({
       user_id: user.id,
-      company_name: formData.companyName,
+      company_name: formData.companyName.trim(),
       company_type: formData.companyType,
       website: formData.website.trim()
         ? (/^https?:\/\//i.test(formData.website.trim()) ? "" : "https://") + formData.website.trim()
         : null,
-      address: formData.address || null,
-      city: formData.city || null,
-      state: formData.state || null,
-      zip_code: formData.zipCode || null,
+      address: formData.address.trim() || null,
+      city: formData.city.trim() || null,
+      state: formData.state.trim() || null,
+      zip_code: formData.zipCode.trim() || null,
     });
 
     setIsLoading(false);

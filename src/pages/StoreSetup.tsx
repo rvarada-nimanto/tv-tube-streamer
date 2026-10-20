@@ -92,12 +92,12 @@ export default function StoreSetup() {
 
     const { error } = await supabase.from("stores").insert({
       user_id: user.id,
-      store_name: formData.storeName,
+      store_name: formData.storeName.trim(),
       store_type: formData.storeType as "restaurant" | "retail" | "grocery" | "pharmacy" | "salon" | "gym" | "medical" | "automotive" | "entertainment" | "other",
-      address: formData.address,
-      city: formData.city,
-      state: formData.state,
-      zip_code: formData.zipCode,
+      address: formData.address.trim(),
+      city: formData.city.trim(),
+      state: formData.state.trim(),
+      zip_code: formData.zipCode.trim(),
       opening_time: formData.openingTime,
       closing_time: formData.closingTime,
       ad_categories: formData.adCategories as ("food" | "retail" | "health" | "beauty" | "automotive" | "entertainment" | "technology" | "real_estate" | "services" | "other")[],
