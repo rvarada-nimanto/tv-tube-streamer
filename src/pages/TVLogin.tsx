@@ -98,7 +98,7 @@ export default function TVLogin() {
           Use your store account credentials to login
         </p>
         <p className="mt-2 text-sm text-muted-foreground/50">
-          Register at adstation.com to create a store account
+          Register at {window.location.host}/auth to create a store account
         </p>
       </div>
     </div>
