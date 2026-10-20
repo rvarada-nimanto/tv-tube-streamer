@@ -186,7 +186,7 @@ export default function StoreContent() {
         .from("store_default_content")
         .insert({
           store_id: store.id,
-          title: title || "YouTube Video",
+          title: title.trim() || "YouTube Video",
           content_type: "youtube",
           content_url: youtubeEmbedUrl(videoId),
           display_order: nextDisplayOrder(),
@@ -247,7 +247,7 @@ export default function StoreContent() {
       .from("store_default_content")
       .insert({
         store_id: store.id,
-        title: title || selectedFile.name,
+        title: title.trim() || selectedFile.name,
         content_type: contentType,
         content_url: urlData.publicUrl,
         display_order: nextDisplayOrder(),
