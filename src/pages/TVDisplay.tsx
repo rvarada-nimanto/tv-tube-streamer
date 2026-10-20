@@ -302,6 +302,7 @@ export default function TVDisplay() {
           src={contentUrl}
           alt={"title" in currentContent ? currentContent.title || "" : ""}
           className="w-full h-full object-cover"
+          onError={() => !isPlaying && playDefaultContent()}
         />
       );
     }
