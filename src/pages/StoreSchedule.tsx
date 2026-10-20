@@ -308,6 +308,8 @@ const StoreSchedule = () => {
                     <Popover key={slot.time}>
                       <PopoverTrigger asChild>
                         <button
+                          type="button"
+                          aria-label={`${format(parse(slot.time, "HH:mm:ss", new Date()), "h:mm a")}, ${slot.isBooked ? "booked" : "available"}`}
                           className={cn(
                             "p-2 rounded-lg text-xs font-medium transition-all hover:scale-105",
                             slot.isBooked
