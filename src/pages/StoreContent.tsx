@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -311,6 +312,24 @@ export default function StoreContent() {
     refreshContent();
   };
 
+  const setItemActive = async (item: ContentItem, isActive: boolean) => {
+    setContentItems((items) => items.map((i) => (i.id === item.id ? { ...i, is_active: isActive } : i)));
+
+    const { error } = await supabase
+      .from("store_default_content")
+      .update({ is_active: isActive })
+      .eq("id", item.id);
+
+    if (error) {
+      toast({
+        title: "Couldn't update the item",
+        description: error.message,
+        variant: "destructive",
+      });
+      refreshContent();
+    }
+  };
+
   const handleDelete = async (item: ContentItem) => {
     if (!confirm(`Delete "${item.title || "this content"}"? This can't be undone.`)) return;
 
@@ -484,7 +503,7 @@ export default function StoreContent() {
                 {contentItems.map((item, index) => (
                   <div 
                     key={item.id} 
-                    className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg"
+                    className={`flex items-center gap-4 p-3 bg-muted/50 rounded-lg ${item.is_active === false ? "opacity-60" : ""}`}
                   >
                     <div className="flex flex-col">
                       <Button
@@ -545,10 +564,16 @@ export default function StoreContent() {
                       <p className="text-sm text-muted-foreground flex items-center gap-1">
                         {getContentIcon(item.content_type)}
                         {item.content_type}
+                        {item.is_active === false && " · Paused"}
                       </p>
                     </div>
 
                     {/* Actions */}
+                    <Switch
+                      checked={item.is_active !== false}
+                      onCheckedChange={(checked) => setItemActive(item, checked)}
+                      aria-label={`Show ${item.title || "item"} on TV`}
+                    />
                     <Button 
                       variant="ghost" 
                       size="icon"
