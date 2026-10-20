@@ -472,6 +472,14 @@ export default function StoreContent() {
                           alt={item.title || "YouTube video"}
                           className="w-full h-full object-cover"
                         />
+                      ) : item.content_type === "video" ? (
+                        <video
+                          src={item.content_url}
+                          muted
+                          playsInline
+                          preload="metadata"
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <Video className="w-6 h-6 text-primary" />
