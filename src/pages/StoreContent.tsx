@@ -97,8 +97,15 @@ export default function StoreContent() {
     fetchData();
   }, [user, navigate]);
 
+  // A file picked for one type must not be uploaded under another
+  useEffect(() => {
+    setSelectedFile(null);
+  }, [contentType]);
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    // Reset so picking the same file again still fires onChange
+    e.target.value = "";
     if (file) {
       // Validate file type
       const validTypes = contentType === "image" 
