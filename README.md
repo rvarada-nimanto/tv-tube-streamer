@@ -1,73 +1,49 @@
-# Welcome to your Lovable project
+# AdStation
 
-## Project info
+AdStation puts sponsor ads and a store's own content on the TV screens inside local stores.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+- **Stores** sign up, describe their store and opening hours, upload default content (images, videos, YouTube links) and see the day's ad schedule.
+- **Ad sponsors** sign up and set up their company.
+- **The TV** signs in at `/tv/login` with the store's account and plays the store's default content in rotation, switching to scheduled ads at their slot time.
 
-## How can I edit this code?
+## Tech stack
 
-There are several ways of editing your application.
+- Vite, React and TypeScript
+- shadcn-ui and Tailwind CSS
+- Supabase (auth, Postgres with row-level security, storage, realtime)
 
-**Use Lovable**
+The app was started in [Lovable](https://lovable.dev); changes made there are committed to this repo automatically, and pushes here show up in Lovable.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Running locally
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+You need Node.js and npm ([install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)).
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
+git clone https://github.com/rvarada-p/tv-tube-streamer.git
+cd tv-tube-streamer
 npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The Supabase connection comes from `.env`:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+| Variable | What it is |
+| --- | --- |
+| `VITE_SUPABASE_URL` | The Supabase project URL |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | The project's anon (publishable) key |
+| `VITE_SUPABASE_PROJECT_ID` | The Supabase project id |
 
-**Use GitHub Codespaces**
+The database schema lives in `supabase/migrations/`.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Scripts
 
-## What technologies are used for this project?
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Development server with hot reload |
+| `npm run build` | Production build into `dist/` |
+| `npm run lint` | ESLint over the project |
+| `npm run preview` | Serves the production build locally |
 
-This project is built with:
+## Deploying
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Open the project in Lovable and choose Share → Publish. To use your own domain, go to Project → Settings → Domains → Connect Domain ([guide](https://docs.lovable.dev/features/custom-domain#custom-domain)).
