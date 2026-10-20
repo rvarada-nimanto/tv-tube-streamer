@@ -147,7 +147,11 @@ const StoreSchedule = () => {
     const slotDuration = 15; // 15-minute slots
     
     const openTime = parse(store.opening_time, "HH:mm:ss", new Date());
-    const closeTime = parse(store.closing_time, "HH:mm:ss", new Date());
+    let closeTime = parse(store.closing_time, "HH:mm:ss", new Date());
+    // Stores open past midnight close on the next day
+    if (closeTime <= openTime) {
+      closeTime = addMinutes(closeTime, 24 * 60);
+    }
     
     let currentTime = openTime;
     
