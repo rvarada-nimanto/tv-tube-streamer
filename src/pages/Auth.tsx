@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -73,6 +74,28 @@ export default function Auth() {
         description: "You have successfully signed in.",
       });
     }
+  };
+
+  const handleForgotPassword = async () => {
+    const result = emailSchema.safeParse(email.trim());
+    if (!result.success) {
+      toast({
+        title: "Enter your e-mail first",
+        description: "Type the e-mail you signed up with, then press Forgot password.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    toast(
+      error
+        ? { title: "Couldn't send the reset e-mail", description: error.message, variant: "destructive" }
+        : { title: "Check your e-mail", description: "We sent a link to set a new password." }
+    );
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -179,6 +202,9 @@ export default function Auth() {
                     disabled={isLoading}
                   >
                     {isLoading ? "Signing in..." : "Sign In"}
+                  </Button>
+                  <Button type="button" variant="link" className="w-full" onClick={handleForgotPassword}>
+                    Forgot password?
                   </Button>
                 </form>
               </TabsContent>
