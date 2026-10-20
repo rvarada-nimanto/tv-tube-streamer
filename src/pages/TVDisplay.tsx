@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tv, Loader2, Clock, Calendar, Play } from "lucide-react";
 import { format } from "date-fns";
 import { extractYouTubeId } from "@/lib/youtube";
+import { findDueAd } from "@/lib/ads";
 
 interface AdContent {
   id: string;
@@ -222,15 +223,9 @@ export default function TVDisplay() {
   // Check for scheduled ads and play them
   const checkAndPlayAd = useCallback(() => {
     const now = new Date();
-    const currentTimeStr = now.toTimeString().slice(0, 5);
 
-    // Find an unplayed ad whose slot started in the last 2 minutes, so a late
-    // or restarted check still plays it
-    const graceStartStr = new Date(now.getTime() - 2 * 60 * 1000).toTimeString().slice(0, 5);
-    const scheduledAd = scheduledAds.find((ad) => {
-      const adTime = ad.slot_time.slice(0, 5);
-      return adTime <= currentTimeStr && adTime >= graceStartStr;
-    });
+    // An unplayed ad whose slot started in the last 2 minutes
+    const scheduledAd = findDueAd(scheduledAds, now);
 
     if (scheduledAd && scheduledAd.ad) {
       setCurrentContent(scheduledAd.ad);
