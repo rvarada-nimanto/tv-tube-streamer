@@ -426,6 +426,16 @@ export default function StoreContent() {
                   onChange={(e) => setYoutubeUrl(e.target.value)}
                   placeholder="https://www.youtube.com/watch?v=..."
                 />
+                {youtubeUrl.trim() &&
+                  (extractYouTubeId(youtubeUrl) ? (
+                    <img
+                      src={`https://i.ytimg.com/vi/${extractYouTubeId(youtubeUrl)}/mqdefault.jpg`}
+                      alt="Video preview"
+                      className="mt-2 w-48 rounded-md"
+                    />
+                  ) : (
+                    <p className="text-xs text-destructive">That doesn't look like a YouTube video link</p>
+                  ))}
               </div>
             ) : (
               <div className="space-y-2">
