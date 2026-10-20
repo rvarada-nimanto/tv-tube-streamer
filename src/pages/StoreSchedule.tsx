@@ -262,7 +262,12 @@ const StoreSchedule = () => {
           {/* Calendar */}
           <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-lg">Select Date</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Select Date</CardTitle>
+                <Button variant="outline" size="sm" onClick={() => setSelectedDate(new Date())}>
+                  Today
+                </Button>
+              </div>
               <CardDescription>View schedule for a specific day</CardDescription>
             </CardHeader>
             <CardContent>
