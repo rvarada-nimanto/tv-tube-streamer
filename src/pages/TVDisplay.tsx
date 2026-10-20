@@ -4,7 +4,7 @@ import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Tv, Loader2, Clock, Calendar, Play } from "lucide-react";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { extractYouTubeId } from "@/lib/youtube";
 import { findDueAd } from "@/lib/ads";
 
@@ -289,6 +289,8 @@ export default function TVDisplay() {
     }
   };
 
+  const nextAd = scheduledAds.find((ad) => ad.slot_time.slice(0, 5) >= format(currentTime, "HH:mm"));
+
   // Render content based on type
   const renderContent = () => {
     if (!currentContent) {
@@ -431,6 +433,7 @@ export default function TVDisplay() {
           <div className="w-3 h-3 rounded-full bg-accent animate-pulse" />
           <span className="text-sm">
             {scheduledAds.length} ad{scheduledAds.length !== 1 ? "s" : ""} scheduled today
+            {nextAd && ` · next at ${format(parse(nextAd.slot_time, "HH:mm:ss", currentTime), "h:mm a")}`}
           </span>
         </div>
       )}
