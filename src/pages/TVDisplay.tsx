@@ -29,7 +29,7 @@ interface DefaultContent {
 }
 
 export default function TVDisplay() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const [currentContent, setCurrentContent] = useState<AdContent | DefaultContent | null>(null);
   const [scheduledAds, setScheduledAds] = useState<ScheduledAd[]>([]);
@@ -298,6 +298,15 @@ export default function TVDisplay() {
               ? "Sign in with a store owner account, or set up your store in the dashboard"
               : "Add content in your store dashboard"}
           </p>
+          {noStore && (
+            <button
+              type="button"
+              onClick={() => signOut()}
+              className="mt-8 rounded-lg border border-border px-6 py-3 tv-body hover:bg-secondary/50"
+            >
+              Sign out
+            </button>
+          )}
         </div>
       );
     }
@@ -359,7 +368,7 @@ export default function TVDisplay() {
   }
 
   return (
-    <div className="dark tv-display relative overflow-hidden cursor-none" onDoubleClick={toggleFullscreen}>
+    <div className={`dark tv-display relative overflow-hidden ${currentContent ? "cursor-none" : ""}`} onDoubleClick={toggleFullscreen}>
       {/* Main Content Area */}
       <div className="absolute inset-0">
         {renderContent()}
