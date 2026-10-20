@@ -33,7 +33,7 @@ export default function Auth() {
 
   const validateForm = () => {
     try {
-      emailSchema.parse(email);
+      emailSchema.parse(email.trim());
       passwordSchema.parse(password);
       return true;
     } catch (error) {
@@ -53,7 +53,7 @@ export default function Auth() {
     if (!validateForm()) return;
 
     setIsLoading(true);
-    const { error } = await signIn(email, password);
+    const { error } = await signIn(email.trim(), password);
     setIsLoading(false);
 
     if (error) {
@@ -77,7 +77,7 @@ export default function Auth() {
     if (!validateForm()) return;
 
     setIsLoading(true);
-    const { error, session } = await signUp(email, password, {
+    const { error, session } = await signUp(email.trim(), password, {
       first_name: firstName,
       last_name: lastName,
       user_type: userType,
