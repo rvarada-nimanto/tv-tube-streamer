@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { extractYouTubeId, youtubeEmbedUrl } from "@/lib/youtube";
 import { 
   ArrowLeft, 
   Upload, 
@@ -167,7 +168,7 @@ export default function StoreContent() {
           store_id: store.id,
           title: title || "YouTube Video",
           content_type: "youtube",
-          content_url: `https://www.youtube.com/embed/${videoId}`,
+          content_url: youtubeEmbedUrl(videoId),
           display_order: contentItems.length,
         });
 
@@ -283,12 +284,6 @@ export default function StoreContent() {
       toast({ title: "Content deleted" });
       refreshContent();
     }
-  };
-
-  const extractYouTubeId = (url: string): string | null => {
-    const regex = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/;
-    const match = url.match(regex);
-    return match ? match[1] : null;
   };
 
   const getContentIcon = (type: string) => {
