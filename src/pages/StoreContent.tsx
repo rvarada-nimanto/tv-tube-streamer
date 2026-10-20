@@ -282,7 +282,7 @@ export default function StoreContent() {
   };
 
   const handleDelete = async (item: ContentItem) => {
-    if (!confirm("Are you sure you want to delete this content?")) return;
+    if (!confirm(`Delete "${item.title || "this content"}"? This can't be undone.`)) return;
 
     // Delete from storage if it's not a YouTube link
     if (item.content_type !== "youtube" && item.content_url.includes("store-content")) {
