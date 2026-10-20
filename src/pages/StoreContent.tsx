@@ -397,11 +397,11 @@ export default function StoreContent() {
                   <input
                     type="file"
                     id="file-upload"
-                    className="hidden"
+                    className="sr-only peer"
                     accept={contentType === "image" ? "image/*" : "video/*"}
                     onChange={handleFileSelect}
                   />
-                  <label htmlFor="file-upload" className="cursor-pointer">
+                  <label htmlFor="file-upload" className="block cursor-pointer rounded-md peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2">
                     <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                     {selectedFile ? (
                       <p className="text-sm font-medium">{selectedFile.name}</p>
