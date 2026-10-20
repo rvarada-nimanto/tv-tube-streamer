@@ -109,7 +109,9 @@ export default function StoreSetup() {
     if (error) {
       toast({
         title: "Error",
-        description: "Failed to create store. Please try again.",
+        description: error.code === "23505"
+          ? "This account already has a store."
+          : `Failed to create store: ${error.message}`,
         variant: "destructive",
       });
       return;
