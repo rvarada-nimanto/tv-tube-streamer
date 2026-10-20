@@ -47,6 +47,7 @@ export default function Dashboard() {
   const [sponsor, setSponsor] = useState<AdSponsor | null>(null);
   const [loading, setLoading] = useState(true);
   const [adsToday, setAdsToday] = useState(0);
+  const [contentCount, setContentCount] = useState(0);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -84,6 +85,12 @@ export default function Dashboard() {
               .eq("store_id", storeData.id)
               .eq("scheduled_date", format(new Date(), "yyyy-MM-dd"));
             setAdsToday(count ?? 0);
+
+            const { count: items } = await supabase
+              .from("store_default_content")
+              .select("id", { count: "exact", head: true })
+              .eq("store_id", storeData.id);
+            setContentCount(items ?? 0);
           }
         } else if (profileData.user_type === "ad_sponsor") {
           const { data: sponsorData } = await supabase
@@ -248,7 +255,7 @@ export default function Dashboard() {
                   <CardDescription>Manage content when no ads play</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold">0</p>
+                  <p className="text-2xl font-bold">{contentCount}</p>
                   <p className="text-sm text-muted-foreground">Content items</p>
                 </CardContent>
               </Card>
