@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,7 +38,7 @@ const AD_CATEGORIES = [
 ];
 
 export default function StoreSetup() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -54,6 +54,13 @@ export default function StoreSetup() {
     closingTime: "21:00",
     adCategories: [] as string[],
   });
+
+  // Signed-out visitors sign in first
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
 
   const handleCategoryToggle = (category: string) => {
     setFormData((prev) => ({
